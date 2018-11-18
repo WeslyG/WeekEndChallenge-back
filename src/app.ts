@@ -15,43 +15,37 @@ class App {
   }
 
   private config(): void {
+    this.setDatabase();
+    this.setParsers(true);
+    this.setCors();
+    this.setRouting();
+  }
 
-    // initialize database
+  private setDatabase(): void {
     mongoose.connect('mongodb://localhost/' + configuration.dataBaseName, { useNewUrlParser: true })
       .then(() => console.log('MongoDB has started...'))
       .catch(e => console.log(e));
+    
     mongoose.set('useCreateIndex', true);
+  }
 
-    // Parsers
-
-    // support application/x-www-form-urlencoded post data
-    this.app.use(bodyParser.urlencoded({ extended: true }));
-
-    // support application/json
-    this.app.use(bodyParser.json());
-
-    this.app.use(cors({origin:function(origin, callback){
-        callback(null, true);
-        }, credentials:true})
-    );
-
-    this.app.use(function(err, req, res, next) {
-      if (err.name === 'StatusError') {
-        res.send(err.status, err.message);
-      } else {
-        next(err);
-      }
-    });
-
+  private setParsers(useNestedObjects: boolean): void {
     // support application/json
     this.app.use(bodyParser.json());
     // support application/x-www-form-urlencoded post data
-    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(bodyParser.urlencoded({ extended: useNestedObjects }));
+  }
 
-
-    // routing
+  private setRouting(): void {
     this.app.use(userPublicRoutes);
     this.app.use(userProtectedRoutes);
+  }
+
+  private setCors(): void {
+    this.app.use(cors({origin:function(origin, callback){
+        callback(null, true);
+        }, credentials: true})
+    );
   }
 }
 

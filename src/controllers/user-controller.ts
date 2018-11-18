@@ -97,7 +97,7 @@ export class UserController {
             if (err) return res.status(500).send(err);
         
             var returnList: IUser[] = [];
-            // var userList = _.remove(userList, u => u.id != req.user.id);
+            
             _(userList).forEach((value: IUser) => {
                 returnList.push({
                     id: value.id,

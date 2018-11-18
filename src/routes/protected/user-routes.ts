@@ -13,6 +13,7 @@ class UserProtectedRoutes {
 
         // check for all routes. For selective check use it like this:
         // this.router.get('...', checkToken, (req: express.Req...
+        
         this.router.use(checkToken); 
         
         this.router.get('/api/user/me', (req: express.Request, res: express.Response) => {
