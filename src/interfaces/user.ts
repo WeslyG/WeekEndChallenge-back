@@ -1,4 +1,4 @@
-import { Gender } from "../enums/gender";
+import { Gender } from '../enums/gender';
 
 export interface IUser {
     id?: string;
@@ -8,6 +8,3 @@ export interface IUser {
     gender?: Gender;
     passwordHash?: string;
 }
-
-// TODO
-// export interface IUser extends mongoose.Document

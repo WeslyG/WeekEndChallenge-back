@@ -1,102 +1,74 @@
-import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
 import { UserSchema } from '../schemas/user';
 import { createToken } from '../helpers/helpers';
 import { IUser } from '../interfaces/user';
+import { Result } from '../models/result';
 import { configuration } from '../configuration/configuration';
+import { userRoleController } from './user-role-controller';
 
 const User = mongoose.model('User', UserSchema);
 
 export class UserController {
 
-    public login(req: Request, res: Response) {
-        User.findOne({ email: req.body.email }, (err: Error, user: IUser) => {
-            if (err) return res.status(500).send(err);
-        
-            if (!user) {
-                return res.status(400).send("A user with that email doesn't exists");
-            }
+    public async login(email: string, password: string) {
+        try {
+            const user = await <IUser>User.findOne({ email }); 
 
-            const password = req.body.password;
-        
-            bcrypt.compare(password, user.passwordHash, (err, result) => {
-                if (err) {    
-                    return res.status(400).send(err.message);
-                }    
+            if (!user) {
+                return new Result(400, 'Invalid email or password.');
+            }
             
+            const compareResult = await bcrypt.compare(password, user.passwordHash); 
+            
+            if (compareResult) {
                 const tokenInput = _.pick(user, 'email', 'name', 'id');
-            
-                if (result) {
-                    return res.status(201).send({
-                        id_token: createToken(tokenInput)
-                    });
-                } else {
-                    return res.status(401).send("Invalid email or password.");
-                }
-            });
-        });
-    }
 
-    public register(req: Request, res: Response) {
-        User.findOne({ email: req.body.email }, (err: Error, user: IUser) => {
-            if (err) return res.status(500).send(err);
-        
-            if(!user) {
-                
-                const password = req.body.password;
-            
-                bcrypt.hash(password, configuration.saltRounds, (err, hash) => {
-                    
-                    const newUser = new User 
-                    ({
-                        email: req.body.email,
-                        name: req.body.name,
-                        passwordHash: hash
-                    });
-                    
-                    newUser.save((err: Error, user: IUser) => {
-                        if (err) return console.error(err);
-
-                        console.log("User " + user.name + " saved");
-                
-                        const tokenInput = _.pick(user, 'email', 'name', 'id');
-                
-                        return res.status(201).send({
-                            id_token: createToken(tokenInput)
-                        });
-                    });
-                });
+                return new Result(201, {id_token: createToken(tokenInput)});
             } else {
-                return res.status(400).send("User exist");
+                
+                return new Result(400, 'Invalid email or password.');
             }
-        });
+        } catch (err) {
+            return new Result(500, err);
+        }
     }
 
-    public getLoggedUser(req: Request, res: Response) {
-        User.findById(req.user.id, (err: Error, user: IUser) => {
-            if (err) return res.status(500).send(err);
-        
+    public async register(name: string, email: string, password: string) {
+        try {
+            const user = await User.findOne({ email });
+
             if (!user) {
-                return res.status(400).send("Invallid user.");
+                const hash = await bcrypt.hash(password, configuration.saltRounds);
+
+                const newUser = new User 
+                ({
+                    email,
+                    name,
+                    passwordHash: hash
+                });
+
+                const result = await <IUser>newUser.save();
+                console.log('User ' + result.name + ' saved!');
+
+                const tokenInput = _.pick(result, 'email', 'name', 'id');
+
+                return new Result(201, { id_token: createToken(tokenInput) });
+
+            } else {
+                return new Result(400, 'User exist.');
             }
-        
-            res.status(200).send({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                birthDay: user.birthDay,
-                gender: user.gender
-            });
-        });
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
     }
 
-    public getUserList(req: Request, res: Response) {
-        User.find((err: Error, userList: IUser[]) => {
-            if (err) return res.status(500).send(err);
-        
-            var returnList: IUser[] = [];
+    public async getUserList() {
+        try {
+            const userList = await User.find(); 
+            const returnList: IUser[] = [];
             
             _(userList).forEach((value: IUser) => {
                 returnList.push({
@@ -108,44 +80,82 @@ export class UserController {
                 });
             });
           
-            res.status(200).send(returnList);
-        });
+            return new Result(200, returnList);
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
     }
 
-    public getUserById(req: Request, res: Response) {
-        User.findById(req.params.id, (err: Error, user: IUser) => {
-            if (err) return res.status(500).send(err);
-        
+    public async getUserById(userId: string) {
+        try {
+            const user = await <IUser>User.findById(userId);
+
             if (!user) {
-              return res.status(400).send("Invallid user.");
+                return new Result(400, 'Invallid user.');
             }
-        
-            res.status(200).send({
+            
+            return new Result(200, {
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 birthDay: user.birthDay,
                 gender: user.gender
             });
-        });
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
     }
 
-    public updateUser(req: Request, res: Response) {
-        const query = { "_id": req.body.id };
-        const update = { name: req.body.name, gender: req.body.gender, birthDay: req.body.birthDay };
-        const options = { new: true };  
+    public async updateUser(user: IUser) {
+        console.log(user);
+        const userToUpdate = user;
+        try {
+            const query = { '_id': userToUpdate.id };
+            const update = { name: userToUpdate.name, gender: userToUpdate.gender, birthDay: userToUpdate.birthDay };
+            const options = { new: true };  
 
-        User.findOneAndUpdate(query, update, options, (err: Error, user: IUser) => {
-            if (err) return res.status(500).send(err);
+            const user = await <IUser>User.findOneAndUpdate(query, update, options);
             
-            res.status(200).send({
+            return new Result(200, {
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 birthDay: user.birthDay,
                 gender: user.gender
             });
-        });
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
+    }
+
+    public async createBasicUsers() {
+        try {
+            const user = await User.findOne({ email: configuration.baseUsers.admin.email });
+
+            if (!user) {
+                const password = 'pass4admin';
+            
+                const hash = await bcrypt.hash(password, configuration.saltRounds);
+
+                const newUser = new User 
+                ({
+                    email: configuration.baseUsers.admin.email,
+                    name: configuration.baseUsers.admin.name,
+                    passwordHash: hash
+                });
+                
+                const result = await <IUser>newUser.save();
+                console.log('User ' + result.name + ' saved');
+                
+                await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);
+            }
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
     }
 }
 

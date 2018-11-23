@@ -1,6 +1,6 @@
-import * as express from "express";
-import { userController } from "../../controllers/user-controller";
-import { checkToken } from "../../helpers/helpers";
+import * as express from 'express';
+import { userController } from '../../controllers/user-controller';
+import { checkToken } from '../../helpers/helpers';
 
 class UserProtectedRoutes {
     public router: express.Router = express.Router();
@@ -16,29 +16,42 @@ class UserProtectedRoutes {
         
         this.router.use(checkToken); 
         
-        this.router.get('/api/user/me', (req: express.Request, res: express.Response) => {
+        this.router.get('/api/user/me', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
-                return res.status(401).send("Invallid user.");
+                return res.status(401).send('Invallid user.');
             }
-            userController.getLoggedUser(req, res);
+            const result = await userController.getUserById(req.user.id);
+            res.status(result.status).send(result.body);
         });
 
-        this.router.get('/api/user/user/:id', (req: express.Request, res: express.Response) => {
+        this.router.get('/api/user/user/:id', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
-              return res.status(401).send("Invallid user.");
+                return res.status(401).send('Invallid user.');
             }
-            userController.getUserById(req, res);
+            if (!req.params.id) {
+                return res.status(401).send('User id is missing.');
+            }
+            const result = await userController.getUserById(req.params.id);
+            res.status(result.status).send(result.body);
         });
         
-        this.router.get('/api/user/list', (req: express.Request, res: express.Response) => {
+        this.router.get('/api/user/list', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
-              return res.status(401).send("Invallid user.");
+                return res.status(401).send('Invallid user.');
             }
-            userController.getUserList(req, res);
+            const result = await userController.getUserList();
+            res.status(result.status).send(result.body);
         });
 
-        this.router.post('/api/user/update', (req: express.Request, res: express.Response) => {
-            userController.updateUser(req, res);
+        this.router.post('/api/user/update', async (req: express.Request, res: express.Response) => {
+            if (!req.user) {
+                return res.status(401).send('Invallid user.');
+            }
+            if (!req.body) {
+                return res.status(401).send('No user to update.');
+            }
+            const result = await userController.updateUser(req.body);
+            res.status(result.status).send(result.body);
         });
     }
 }

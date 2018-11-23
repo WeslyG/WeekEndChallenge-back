@@ -1,5 +1,5 @@
-import * as express from "express";
-import { userController } from "../../controllers/user-controller";
+import * as express from 'express';
+import { userController } from '../../controllers/user-controller';
 
 class UserPublicRoutes {
   public router: express.Router = express.Router();
@@ -9,26 +9,27 @@ class UserPublicRoutes {
   }
 
   private config(): void {
-    // login
-    this.router.post('/api/login', (req: express.Request, res: express.Response) => {
+    
+    this.router.post('/api/login', async (req: express.Request, res: express.Response) => {
       if (!req.body.email || !req.body.password) {
-        return res.status(400).send("You must send email and password");
+        return res.status(400).send('You must send email and password');
       }
-      userController.login(req, res);
+      const result = await userController.login(req.body.email, req.body.password);
+      res.status(result.status).send(result.body);
     });
 
-    // register
-    this.router.post('/api/register', (req: express.Request, res: express.Response) => {
+    this.router.post('/api/register', async (req: express.Request, res: express.Response) => {
       if (!req.body.name) {
-        return res.status(400).send("You must send name");
+        return res.status(400).send('You must send name');
       }
       if (!req.body.email) {
-        return res.status(400).send("You must send email");
+        return res.status(400).send('You must send email');
       }
       if (!req.body.password) {
-        return res.status(400).send("You must send password");
+        return res.status(400).send('You must send password');
       }
-      userController.register(req, res);
+      const result = await userController.register(req.body.name, req.body.email, req.body.password);
+      res.status(result.status).send(result.body);
     });
   }
 }
