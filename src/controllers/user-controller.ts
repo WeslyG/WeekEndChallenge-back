@@ -51,6 +51,8 @@ export class UserController {
 
                 const result = await <IUser>newUser.save();
                 console.log('User ' + result.name + ' saved!');
+                
+                await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
 
                 const tokenInput = _.pick(result, 'email', 'name', 'id');
 
@@ -136,7 +138,7 @@ export class UserController {
             const user = await User.findOne({ email: configuration.baseUsers.admin.email });
 
             if (!user) {
-                const password = 'pass4admin';
+                const password = configuration.baseUsers.admin.defaultPassword;
             
                 const hash = await bcrypt.hash(password, configuration.saltRounds);
 
@@ -151,6 +153,7 @@ export class UserController {
                 console.log('User ' + result.name + ' saved');
                 
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);
+                await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
             }
         } catch (err) {
             console.log(err);

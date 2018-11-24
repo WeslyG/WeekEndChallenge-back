@@ -8,7 +8,8 @@ export const configuration = {
     baseUsers: {
         admin: {
             name: 'admin',
-            email: 'admin@admin'
+            email: 'admin@admin',
+            defaultPassword: 'pass4admin'
         }
     },
     baseRoles: {
