@@ -15,16 +15,8 @@ class UserProtectedRoutes {
         // this.router.get('...', checkToken, (req: express.Req...
         
         this.router.use(checkToken); 
-        
-        this.router.get('/api/user/me', async (req: express.Request, res: express.Response) => {
-            if (!req.user) {
-                return res.status(401).send('Invallid user.');
-            }
-            const result = await userController.getUserById(req.user.id);
-            res.status(result.status).send(result.body);
-        });
 
-        this.router.get('/api/user/user/:id', async (req: express.Request, res: express.Response) => {
+        this.router.get('/api/user/id/:id', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
                 return res.status(401).send('Invallid user.');
             }
@@ -49,6 +41,9 @@ class UserProtectedRoutes {
             }
             if (!req.body) {
                 return res.status(401).send('No user to update.');
+            }
+            if (req.user.id != req.body.id) {
+                return res.status(401).send('You are not allowed to change ' + req.body.name + ' profile!');
             }
             const result = await userController.updateUser(req.body);
             res.status(result.status).send(result.body);

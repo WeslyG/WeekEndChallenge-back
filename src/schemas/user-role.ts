@@ -5,11 +5,11 @@ export const UserRoleSchema = new Schema({
     userId: {
         type: String,
         required: true,
-        unique: true
+        // unique: true
     },
     roleId: {
         type: String,
         required: true,
-        unique: true
+        // unique: true
     }
 }, { collection: 'user-roles' });

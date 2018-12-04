@@ -2,8 +2,14 @@ import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
 import { UserRoleSchema } from '../schemas/user-role';
 import { roleController } from './role-controller';
+import { configuration } from '../configuration/configuration';
+import { RoleSchema } from '../schemas/role';
+import { IRole } from '../interfaces/role';
+import { IUserRole } from '../interfaces/user-role';
+import { Result } from '../models/result';
 
 const UserRole = mongoose.model('UserRole', UserRoleSchema);
+const Role = mongoose.model('Role', RoleSchema);
 
 export class UserRoleController {
 
@@ -19,15 +25,15 @@ export class UserRoleController {
                         roleId: role.id
                     });
                     await newUserRole.save();
-                    console.log('Role was added to user: ' + userId);
+                    return new Result(200, 'Role was added to user: ' + userId);
                 } else {
-                    console.log('User role exists');
+                    return new Result(400, 'User role exists');
                 }
             } else {
-                console.log('No such role');
+                return new Result(400, 'No such role');
             }
         } catch (err) {
-            console.log(err);
+            return new Result(500, err);
         }
     }
 
@@ -35,13 +41,46 @@ export class UserRoleController {
         try {
             const role = await roleController.getRoleByName(roleName);
             if (role) {
-                await UserRole.findOneAndDelete({ userId: userId, roleId: role.id })
-                console.log('Role was deleted from user: ' + userId);
+                await UserRole.findOneAndDelete({ userId: userId, roleId: role.id });
+                return new Result(200, 'Role was deleted from user: ' + userId);
             } else {
-                console.log('No such role');
+                return new Result(400, 'No such role');
             }
         } catch (err) {
-            console.log(err);
+            return new Result(500, err);
+        }
+    }
+
+    public async getUserRoles(userId: string) {
+        try {
+            const roles = await Role.find();
+            const userRoles = await UserRole.find({ userId });
+
+            const returnList: IRole[] = [];
+
+            _(userRoles).forEach((value: IUserRole) => {
+                const role = <IRole>roles.find((i: IRole) => i.id === value.roleId);
+                if (role) {
+                    returnList.push(role);
+                }
+            });
+            return new Result(200, returnList);
+        } catch (err) {
+            return new Result(500, err);
+        }
+    }
+
+    public async isAdminCheck(userId: string) {
+        try {
+            const adminRole = await Role.findOne({ name: configuration.baseRoles.admin });
+            const userAdminRole = await UserRole.findOne({ userId, roleId: adminRole.id });
+            if (userAdminRole) {
+                return new Result(200, true);;
+            } else {
+                return new Result(200, false);;
+            }
+        } catch (err) {
+            return new Result(500, err);
         }
     }
 }

@@ -7,6 +7,7 @@ import { configuration } from './configuration/configuration';
 import { userProtectedRoutes } from './routes/protected/user-routes';
 import { userController } from './controllers/user-controller';
 import { roleController } from './controllers/role-controller';
+import { roleProtectedRoutes } from './routes/protected/role-routes';
 
 class App {
   public app: express.Application;
@@ -51,6 +52,7 @@ class App {
   private setRouting() {
     this.app.use(userPublicRoutes);
     this.app.use(userProtectedRoutes);
+    this.app.use(roleProtectedRoutes);
   }
 
   private setCors() {
