@@ -3,8 +3,8 @@ import { Gender } from '../enums/gender';
 export interface IUser {
     id?: string;
     name?: string;
-    email?: string;
-    birthDay?: Date;
+    login?: string,
     gender?: Gender;
+    score?: number,
     passwordHash?: string;
 }

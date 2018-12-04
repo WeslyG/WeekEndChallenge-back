@@ -7,8 +7,8 @@ export const configuration = {
     saltRounds: 10,
     baseUsers: {
         admin: {
-            name: 'admin',
-            email: 'admin@admin',
+            name: 'adminName',
+            login: 'admin',
             defaultPassword: 'pass4admin'
         }
     },

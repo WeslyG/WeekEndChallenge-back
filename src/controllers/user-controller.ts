@@ -12,39 +12,39 @@ const User = mongoose.model('User', UserSchema);
 
 export class UserController {
 
-    public async login(email: string, password: string) {
+    public async login(login: string, password: string) {
         try {
-            const user = await <IUser>User.findOne({ email }); 
+            const user = await <IUser>User.findOne({ login }); 
 
             if (!user) {
-                return new Result(400, 'Invalid email or password.');
+                return new Result(400, 'Invalid login or password.');
             }
             
             const compareResult = await bcrypt.compare(password, user.passwordHash); 
             
             if (compareResult) {
-                const tokenInput = _.pick(user, 'email', 'name', 'id');
+                const tokenInput = _.pick(user, 'login', 'name', 'id');
 
                 return new Result(201, {id_token: createToken(tokenInput)});
             } else {
                 
-                return new Result(400, 'Invalid email or password.');
+                return new Result(400, 'Invalid login or password.');
             }
         } catch (err) {
             return new Result(500, err);
         }
     }
 
-    public async register(name: string, email: string, password: string) {
+    public async register(name: string, login: string, password: string) {
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ login });
 
             if (!user) {
                 const hash = await bcrypt.hash(password, configuration.saltRounds);
 
                 const newUser = new User 
                 ({
-                    email,
+                    login,
                     name,
                     passwordHash: hash
                 });
@@ -54,7 +54,7 @@ export class UserController {
                 
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
 
-                const tokenInput = _.pick(result, 'email', 'name', 'id');
+                const tokenInput = _.pick(result, 'login', 'name', 'id');
 
                 return new Result(201, { id_token: createToken(tokenInput) });
 
@@ -76,8 +76,7 @@ export class UserController {
                 returnList.push({
                     id: value.id,
                     name: value.name,
-                    email: value.email,
-                    birthDay: value.birthDay,
+                    login: value.login,
                     gender: value.gender
                 });
             });
@@ -100,8 +99,7 @@ export class UserController {
             return new Result(200, {
                 id: user.id,
                 name: user.name,
-                email: user.email,
-                birthDay: user.birthDay,
+                login: user.login,
                 gender: user.gender
             });
         } catch (err) {
@@ -115,7 +113,7 @@ export class UserController {
         const userToUpdate = user;
         try {
             const query = { '_id': userToUpdate.id };
-            const update = { name: userToUpdate.name, gender: userToUpdate.gender, birthDay: userToUpdate.birthDay };
+            const update = { name: userToUpdate.name, gender: userToUpdate.gender };
             const options = { new: true };  
 
             const user = await <IUser>User.findOneAndUpdate(query, update, options);
@@ -123,8 +121,7 @@ export class UserController {
             return new Result(200, {
                 id: user.id,
                 name: user.name,
-                email: user.email,
-                birthDay: user.birthDay,
+                login: user.login,
                 gender: user.gender
             });
         } catch (err) {
@@ -135,7 +132,7 @@ export class UserController {
 
     public async createBasicUsers() {
         try {
-            const user = await User.findOne({ email: configuration.baseUsers.admin.email });
+            const user = await User.findOne({ login: configuration.baseUsers.admin.login });
 
             if (!user) {
                 const password = configuration.baseUsers.admin.defaultPassword;
@@ -144,7 +141,7 @@ export class UserController {
 
                 const newUser = new User 
                 ({
-                    email: configuration.baseUsers.admin.email,
+                    login: configuration.baseUsers.admin.login,
                     name: configuration.baseUsers.admin.name,
                     passwordHash: hash
                 });

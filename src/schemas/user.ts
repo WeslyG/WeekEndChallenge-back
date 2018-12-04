@@ -10,11 +10,11 @@ export const UserSchema = new Schema({
         type: Number,
         required: false
     },
-    birthDay: {
-        type: Date,
+    score: {
+        type: Number,
         required: false
     },
-    email: {
+    login: {
         type: String,
         required: true,
         unique: true
