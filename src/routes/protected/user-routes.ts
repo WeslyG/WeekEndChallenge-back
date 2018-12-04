@@ -20,7 +20,6 @@ class UserProtectedRoutes {
                 res.status(401).send({ message: '401 unauthorize'});
             }
         });
-
         
         this.router.get('/api/user/me', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
@@ -30,7 +29,7 @@ class UserProtectedRoutes {
             res.status(result.status).send(result.body);
         });
 
-        this.router.get('/api/user/user/:id', async (req: express.Request, res: express.Response) => {
+        this.router.get('/api/user/:id', async (req: express.Request, res: express.Response) => {
             if (!req.user) {
                 return res.status(401).send('Invallid user.');
             }

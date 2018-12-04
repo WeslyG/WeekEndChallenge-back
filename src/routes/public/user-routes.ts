@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { userController } from '../../controllers/user-controller';
 import { testController } from '../../controllers/test-controller';
+import { questController } from '../../controllers/quest-controller';
 
 class UserPublicRoutes {
   public router: express.Router = express.Router();
@@ -12,10 +13,15 @@ class UserPublicRoutes {
   private config(): void {
     
     this.router.post('/api/check', async (req: express.Request, res: express.Response) => {
-      const result = await testController.test(req.body.template);
+      const result = await questController.newQuest(req.body.name, req.body.tag, req.body.description, req.body.price, req.body.answers);
       res.status(result.status).send(result.body);
+      // For mock
       // return res.status(200).send({ message: 'ok'});
-    })
+    });
+
+    this.router.post('/api/quests', async (req: express.Request, res: express.Response) => {
+
+    });
 
     this.router.post('/api/login', async (req: express.Request, res: express.Response) => {
       if (!req.body.login || !req.body.password) {
