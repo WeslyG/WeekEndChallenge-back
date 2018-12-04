@@ -152,6 +152,7 @@ export class UserController {
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
             }
+            // user already exist
         } catch (err) {
             console.log(err);
             return new Result(500, err);
