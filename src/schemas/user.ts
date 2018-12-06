@@ -6,18 +6,18 @@ export const UserSchema = new Schema({
         type: String,
         required: true
     },
-    gender: {
-        type: Number,
-        required: false
+    login: {
+        type: String,
+        required: true,
+        unique: true
     },
     score: {
         type: Number,
         required: false
     },
-    login: {
-        type: String,
-        required: true,
-        unique: true
+    gender: {
+        type: Number,
+        required: false
     },
     passwordHash: {
         type: String,

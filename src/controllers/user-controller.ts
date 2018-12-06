@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
 import { UserSchema } from '../schemas/user';
+import { QuestSchema } from '../schemas/quest';
 import { createToken } from '../helpers/helpers';
 import { IUser } from '../interfaces/user';
 import { Result } from '../models/result';
@@ -9,6 +10,7 @@ import { configuration } from '../configuration/configuration';
 import { userRoleController } from './user-role-controller';
 
 const User = mongoose.model('User', UserSchema);
+const Quest = mongoose.model('Quest', QuestSchema);
 
 export class UserController {
 
@@ -69,19 +71,20 @@ export class UserController {
 
     public async getUserList() {
         try {
-            const userList = await User.find(); 
-            const returnList: IUser[] = [];
+            const userList = await User.find();
+            console.log(userList);
+            // const returnList: IUser[] = [];
             
-            _(userList).forEach((value: IUser) => {
-                returnList.push({
-                    id: value.id,
-                    name: value.name,
-                    login: value.login,
-                    gender: value.gender
-                });
-            });
+            // _(userList).forEach((value: IUser) => {
+            //     returnList.push({
+            //         id: value.id,
+            //         name: value.name,
+            //         login: value.login,
+            //         gender: value.gender
+            //     });
+            // });
           
-            return new Result(200, returnList);
+            // return new Result(200, returnList);
         } catch (err) {
             console.log(err);
             return new Result(500, err);
@@ -109,20 +112,18 @@ export class UserController {
     }
 
     public async updateUser(user: IUser) {
-        console.log(user);
-        const userToUpdate = user;
         try {
-            const query = { '_id': userToUpdate.id };
-            const update = { name: userToUpdate.name, gender: userToUpdate.gender };
+            const query = { '_id': user.id };
+            const update = { name: user.name, gender: user.gender };
             const options = { new: true };  
 
-            const user = await <IUser>User.findOneAndUpdate(query, update, options);
+            const newUser = await <IUser>User.findOneAndUpdate(query, update, options);
             
             return new Result(200, {
-                id: user.id,
-                name: user.name,
-                login: user.login,
-                gender: user.gender
+                id: newUser.id,
+                name: newUser.name,
+                login: newUser.login,
+                gender: newUser.gender
             });
         } catch (err) {
             console.log(err);

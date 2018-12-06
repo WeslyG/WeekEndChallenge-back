@@ -2,6 +2,7 @@ import * as express from 'express';
 import { userController } from '../../controllers/user-controller';
 import { testController } from '../../controllers/test-controller';
 import { questController } from '../../controllers/quest-controller';
+import { IQuest } from '../../interfaces/quest';
 
 class UserPublicRoutes {
   public router: express.Router = express.Router();
@@ -17,6 +18,15 @@ class UserPublicRoutes {
       res.status(result.status).send(result.body);
       // For mock
       // return res.status(200).send({ message: 'ok'});
+    });
+
+    this.router.put('/api/quest/:id', async (req: express.Request, res: express.Response) => {
+      if (!req.body) {
+        return res.status(401).send('No quest to update.');
+      }
+      const result = await questController.updateQuest(req.body);
+      res.status(result.status).send(result.body);
+
     });
 
     this.router.post('/api/quests', async (req: express.Request, res: express.Response) => {

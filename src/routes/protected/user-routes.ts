@@ -41,19 +41,15 @@ class UserProtectedRoutes {
         });
         
         this.router.get('/api/user/list', async (req: express.Request, res: express.Response) => {
-            if (!req.user) {
-                return res.status(401).send('Invallid user.');
-            }
             const result = await userController.getUserList();
             res.status(result.status).send(result.body);
         });
 
-        this.router.post('/api/user/update', async (req: express.Request, res: express.Response) => {
-            if (!req.user) {
-                return res.status(401).send('Invallid user.');
-            }
-            if (!req.body) {
-                return res.status(401).send('No user to update.');
+        this.router.put('/api/user/update', async (req: express.Request, res: express.Response) => {
+            if (!req.body.id || !req.body.name) {
+                return res.status(400).send({ message: 'id and name required'});
+            } else if (req.body.name.match(/^\W.*/)) {
+                return res.status(400).send({ message: 'Name is not valid' });
             }
             const result = await userController.updateUser(req.body);
             res.status(result.status).send(result.body);
