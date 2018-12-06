@@ -1,18 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
-import { UserSchema } from '../schemas/user';
-import { QuestSchema } from '../schemas/quest';
-import { createToken } from '../helpers/helpers';
-import { IUser } from '../interfaces/user';
 import { Result } from '../models/result';
-import { configuration } from '../configuration/configuration';
+import { IUser } from '../interfaces/user';
+import { UserSchema } from '../schemas/user';
+import { createToken } from '../helpers/helpers';
 import { userRoleController } from './user-role-controller';
-import { TestSchema } from '../schemas/test';
+import { configuration } from '../configuration/configuration';
 
 const User = mongoose.model('User', UserSchema);
-const Test = mongoose.model('Test', TestSchema);
-const Quest = mongoose.model('Quest', QuestSchema);
 
 export class UserController {
 

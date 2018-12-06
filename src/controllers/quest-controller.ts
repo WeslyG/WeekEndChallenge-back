@@ -28,21 +28,20 @@ export class QuestController {
     }
     
     // New Quest
-    public async newQuest(name, tag, description: string, price: number, answers: [string]) {
+    public async newQuest(quest: IQuest) {
         try {
-            const quest = await Quest.findOne({ name });
-            if (!quest) {
+            const exist = await Quest.findOne({ name: quest.name });
+            if (!exist) {
                 const newQuest = new Quest
                     ({
-                        name,
-                        tag,
-                        price,
-                        description,
-                        answers
+                        name: quest.name,
+                        tag: quest.tag,
+                        price: quest.price,
+                        description: quest.description,
+                        answers: quest.answers
                     });
                 const result = await <IQuest>newQuest.save();
-                console.log(`String ${result.name} saved!`);
-                return new Result(201, newQuest);
+                return new Result(201, result);
             } else {
                 return new Result(400, { message: 'quest exist' });
             }

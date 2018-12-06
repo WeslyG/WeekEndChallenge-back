@@ -19,7 +19,7 @@ class QuestProtectRoutes {
 
         // Create
         this.router.post('/api/quest', async (req: express.Request, res: express.Response) => {
-            const result = await questController.newQuest(req.body.name, req.body.tag, req.body.description, req.body.price, req.body.answers);
+            const result = await questController.newQuest(req.body);
             res.status(result.status).send(result.body);
         });
         
