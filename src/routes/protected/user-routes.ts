@@ -51,6 +51,9 @@ class UserProtectedRoutes {
             } else if (req.body.name.match(/^\W.*/)) {
                 return res.status(400).send({ message: 'Name is not valid' });
             }
+            if (req.user.id != req.body.id) {
+                return res.status(401).send('You are not allowed to change ' + req.body.name + ' profile!');
+            }
             const result = await userController.updateUser(req.body);
             res.status(result.status).send(result.body);
         });

@@ -25,9 +25,9 @@ export class UserController {
             const compareResult = await bcrypt.compare(password, user.passwordHash); 
             
             if (compareResult) {
-                const tokenInput = _.pick(user, 'login', 'name', 'id');
+                const tokenInput = _.pick(user, 'id');
 
-                return new Result(201, {id_token: createToken(tokenInput)});
+                return new Result(200, {id_token: createToken(tokenInput)});
             } else {
                 
                 return new Result(400, 'Invalid login or password.');
@@ -56,9 +56,9 @@ export class UserController {
                 
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
 
-                const tokenInput = _.pick(result, 'login', 'name', 'id');
+                const tokenInput = _.pick(result, 'id');
 
-                return new Result(201, { id_token: createToken(tokenInput) });
+                return new Result(200, { id_token: createToken(tokenInput) });
 
             } else {
                 return new Result(400, 'User exist.');
