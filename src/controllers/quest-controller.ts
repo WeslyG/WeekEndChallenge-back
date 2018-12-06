@@ -1,16 +1,36 @@
+import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
-import { QuestSchema } from '../schemas/quest';
-import { IQuest } from '../interfaces/quest';
 import { Result } from '../models/result';
+import { IQuest } from '../interfaces/quest';
+import { QuestSchema } from '../schemas/quest';
 
 const Quest = mongoose.model('Quest', QuestSchema);
 
 export class QuestController {
-
+    // GET one quest 
+    public async getQuest(questId: string) {
+        try {
+            const quest = await <IQuest>Quest.findById(questId);
+            if (!quest) {
+                return new Result(400, { message: 'quest invalid'});
+            }
+            return new Result(200, {
+                id: quest.id,
+                name: quest.name,
+                tag: quest.tag,
+                price: quest.price,
+                description: quest.description,
+            });
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
+    }
+    
+    // New Quest
     public async newQuest(name, tag, description: string, price: number, answers: [string]) {
         try {
             const quest = await Quest.findOne({ name });
-
             if (!quest) {
                 const newQuest = new Quest
                     ({
@@ -22,7 +42,7 @@ export class QuestController {
                     });
                 const result = await <IQuest>newQuest.save();
                 console.log(`String ${result.name} saved!`);
-                return new Result(201, { message: `Sucess ${result.name} write` });
+                return new Result(201, newQuest);
             } else {
                 return new Result(400, { message: 'quest exist' });
             }
@@ -32,28 +52,27 @@ export class QuestController {
         }
     }
 
+    // Update Quest
     public async updateQuest(quest: IQuest) {
-        console.log(quest);
-        const questUpdate = quest;
+        // TODO: update one field
         try {
-            const query = { '_id': questUpdate.id };
+            const query = { '_id': quest.id };
             const update = {
-                name: questUpdate.name,
-                description: questUpdate.description,
-                tag: questUpdate.tag,
-                price: questUpdate.price,
-                answers: questUpdate.answers
-            };
-            const options = { new: true };
-            const quest = await <IQuest>Quest.findOneAndUpdate(query, update, options);
-
-            return new Result(200, {
-                id: quest.id,
                 name: quest.name,
                 description: quest.description,
                 tag: quest.tag,
-                gender: quest.price,
+                price: quest.price,
                 answers: quest.answers
+            };
+            const newQuest = await <IQuest>Quest.findOneAndUpdate(query, update, { new: true });
+
+            return new Result(200, {
+                id: newQuest.id,
+                name: newQuest.name,
+                description: newQuest.description,
+                tag: newQuest.tag,
+                price: newQuest.price,
+                answers: newQuest.answers
             });
         } catch (err) {
             console.log(err);
@@ -61,15 +80,41 @@ export class QuestController {
         }
     }
 
-    // Update Quest
-
     // Delete Quest
+    public async deleteQuest(quest: IQuest) {
+        try {
+            const query = { '_id': quest.id };
+            const deleteQuest = await <IQuest>Quest.findOneAndDelete(query);
+            console.log(deleteQuest);
+            return new Result(200, deleteQuest);
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
+    }
 
 
     // GET questList
-
-    // GET quest on tag
-
+    public async getQuestList() {
+        const questlist = await Quest.find();
+        try {
+            const returnList: IQuest[] = [];
+                _(questlist).forEach((value: IQuest) => {
+                    returnList.push({
+                        id: value.id,
+                        name: value.name,
+                        tag: value.tag,
+                        price: value.price,
+                        description: value.description
+                    });
+                });
+        return new Result(200, returnList);
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
+    }
+    // GET questList on tag
 
 }
 

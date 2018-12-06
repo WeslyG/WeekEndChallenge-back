@@ -8,8 +8,10 @@ import { IUser } from '../interfaces/user';
 import { Result } from '../models/result';
 import { configuration } from '../configuration/configuration';
 import { userRoleController } from './user-role-controller';
+import { TestSchema } from '../schemas/test';
 
 const User = mongoose.model('User', UserSchema);
+const Test = mongoose.model('Test', TestSchema);
 const Quest = mongoose.model('Quest', QuestSchema);
 
 export class UserController {
@@ -58,10 +60,10 @@ export class UserController {
 
                 const tokenInput = _.pick(result, 'id');
 
-                return new Result(200, { id_token: createToken(tokenInput) });
+                return new Result(201, { id_token: createToken(tokenInput) });
 
             } else {
-                return new Result(400, 'User exist.');
+                return new Result(400, { message: `user ${login} exist`});
             }
         } catch (err) {
             console.log(err);
@@ -72,19 +74,18 @@ export class UserController {
     public async getUserList() {
         try {
             const userList = await User.find();
-            console.log(userList);
-            // const returnList: IUser[] = [];
+            const returnList: IUser[] = [];
             
-            // _(userList).forEach((value: IUser) => {
-            //     returnList.push({
-            //         id: value.id,
-            //         name: value.name,
-            //         login: value.login,
-            //         gender: value.gender
-            //     });
-            // });
+            _(userList).forEach((value: IUser) => {
+                returnList.push({
+                    id: value.id,
+                    name: value.name,
+                    login: value.login,
+                    gender: value.gender
+                });
+            });
           
-            // return new Result(200, returnList);
+            return new Result(200, returnList);
         } catch (err) {
             console.log(err);
             return new Result(500, err);
@@ -115,9 +116,7 @@ export class UserController {
         try {
             const query = { '_id': user.id };
             const update = { name: user.name, gender: user.gender };
-            const options = { new: true };  
-
-            const newUser = await <IUser>User.findOneAndUpdate(query, update, options);
+            const newUser = await <IUser>User.findOneAndUpdate(query, update, { new: true });
             
             return new Result(200, {
                 id: newUser.id,

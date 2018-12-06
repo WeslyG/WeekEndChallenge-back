@@ -2,12 +2,18 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import mongoose = require('mongoose');
 import cors = require('cors');
-import { userPublicRoutes } from './routes/public/user-routes';
 import { configuration } from './configuration/configuration';
-import { userProtectedRoutes } from './routes/protected/user-routes';
 import { userController } from './controllers/user-controller';
 import { roleController } from './controllers/role-controller';
+
+import { userPublicRoutes } from './routes/public/user-routes';
+import { questPublicRoutes } from './routes/public/quest-routes';
+
+import { userProtectedRoutes } from './routes/protected/user-routes';
+import { questProtectRoutes } from './routes/protected/quest-routes';
 import { roleProtectedRoutes } from './routes/protected/role-routes';
+
+
 
 class App {
   public app: express.Application;
@@ -51,8 +57,11 @@ class App {
 
   private setRouting() {
     this.app.use(userPublicRoutes);
+    this.app.use(questPublicRoutes);
+
     this.app.use(userProtectedRoutes);
     this.app.use(roleProtectedRoutes);
+    this.app.use(questProtectRoutes);
   }
 
   private setCors() {
