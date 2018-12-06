@@ -15,7 +15,6 @@ export class UserController {
     public async login(login: string, password: string) {
         try {
             const user = await <IUser>User.findOne({ login }); 
-
             if (!user) {
                 return new Result(400, 'Invalid login or password.');
             }
@@ -25,10 +24,10 @@ export class UserController {
             if (compareResult) {
                 const tokenInput = _.pick(user, 'id');
 
-                return new Result(200, {id_token: createToken(tokenInput)});
+                return new Result(200, {access_token: createToken(tokenInput)});
             } else {
                 
-                return new Result(400, 'Invalid login or password.');
+                return new Result(400, { message: 'Invalid login or password'});
             }
         } catch (err) {
             return new Result(500, err);
@@ -50,13 +49,8 @@ export class UserController {
                 });
 
                 const result = await <IUser>newUser.save();
-                console.log('User ' + result.name + ' saved!');
-                
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
-
-                const tokenInput = _.pick(result, 'id');
-
-                return new Result(201, { id_token: createToken(tokenInput) });
+                return new Result(201, result);
 
             } else {
                 return new Result(400, { message: `user ${login} exist`});
