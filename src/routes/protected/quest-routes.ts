@@ -40,6 +40,7 @@ class QuestProtectRoutes {
         });
 
         // Delete
+        // TODO: deleted: true
         this.router.delete('/api/quest', async (req: express.Request, res: express.Response) => {
             if (!req.body.id) {
                 return res.status(400).send({ message: 'id is required' });

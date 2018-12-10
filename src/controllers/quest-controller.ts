@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { Result } from '../models/result';
 import { IQuest } from '../interfaces/quest';
 import { QuestSchema } from '../schemas/quest';
+import { IQuestResult } from '../interfaces/questResult';
 
 const Quest = mongoose.model('Quest', QuestSchema);
 
@@ -97,24 +98,28 @@ export class QuestController {
     public async getQuestList() {
         const questlist = await Quest.find();
         try {
-            const returnList: IQuest[] = [];
-                _(questlist).forEach((value: IQuest) => {
-                    returnList.push({
+            const returnList: any = [];
+            _(questlist).forEach((value: IQuest) => {
+                let tag = _.keys(_.pickBy(returnList, { tag: value.tag }))
+                if (tag.length === 0) {
+                        returnList.push({ 
+                            tag: value.tag,
+                            quest: []
+                        })
+                    }
+                returnList[_.keys(_.pickBy(returnList, { tag: value.tag }))[0]].quest.push({
                         id: value.id,
                         name: value.name,
-                        tag: value.tag,
                         price: value.price,
                         description: value.description
                     });
-                });
-        return new Result(200, returnList);
+            });
+            return new Result(200, returnList);
         } catch (err) {
             console.log(err);
             return new Result(500, err);
         }
     }
-    // GET questList on tag
-
 }
 
 export const questController = new QuestController();
