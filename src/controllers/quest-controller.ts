@@ -100,14 +100,15 @@ export class QuestController {
         try {
             const returnList: any = [];
             _(questlist).forEach((value: IQuest) => {
+                // TODO: Пока что магия, не вникать!
                 let tag = _.keys(_.pickBy(returnList, { tag: value.tag }))
                 if (tag.length === 0) {
                         returnList.push({ 
                             tag: value.tag,
-                            quest: []
+                            quests: []
                         })
                     }
-                returnList[_.keys(_.pickBy(returnList, { tag: value.tag }))[0]].quest.push({
+                returnList[_.keys(_.pickBy(returnList, { tag: value.tag }))[0]].quests.push({
                         id: value.id,
                         name: value.name,
                         price: value.price,
