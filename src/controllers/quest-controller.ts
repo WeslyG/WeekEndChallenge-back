@@ -44,7 +44,7 @@ export class QuestController {
                 const result = await <IQuest>newQuest.save();
                 return new Result(201, result);
             } else {
-                return new Result(400, { message: 'quest exist' });
+                return new Result(409, { message: 'quest exist' });
             }
         } catch (err) {
             console.log(err);
