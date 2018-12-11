@@ -53,7 +53,7 @@ export class UserController {
                 return new Result(201, result);
 
             } else {
-                return new Result(400, { message: `user ${login} exist`});
+                return new Result(409, { message: `user ${login} exist`});
             }
         } catch (err) {
             console.log(err);
