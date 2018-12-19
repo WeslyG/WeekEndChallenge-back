@@ -7,9 +7,10 @@ import { RoleSchema } from '../schemas/role';
 import { IRole } from '../interfaces/role';
 import { IUserRole } from '../interfaces/user-role';
 import { Result } from '../models/result';
+import { IUser } from '../interfaces/user';
 
-const UserRole = mongoose.model('UserRole', UserRoleSchema);
-const Role = mongoose.model('Role', RoleSchema);
+const UserRole = mongoose.model<IUser>('UserRole', UserRoleSchema);
+const Role = mongoose.model<IRole>('Role', RoleSchema);
 
 export class UserRoleController {
 

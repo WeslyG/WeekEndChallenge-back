@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { checkToken } from '../../helpers/helpers';
 import { questController } from '../../controllers/quest-controller';
+import { userQuestController } from '../../controllers/user-quest-controller';
 
 class QuestProtectRoutes {
     public router: express.Router = express.Router();
@@ -40,22 +41,22 @@ class QuestProtectRoutes {
         });
 
         // Delete
-        // TODO: deleted: true
-        this.router.delete('/api/quest', async (req: express.Request, res: express.Response) => {
-            if (!req.body.id) {
-                return res.status(400).send({ message: 'id is required' });
-            }
-            const result = await questController.deleteQuest(req.body);
-            res.status(result.status).send(result.body);
-        });
+        // TODO: enabled: true
+        // this.router.delete('/api/quest', async (req: express.Request, res: express.Response) => {
+        //     if (!req.body.id) {
+        //         return res.status(400).send({ message: 'id is required' });
+        //     }
+        //     const result = await questController.deleteQuest(req.body);
+        //     res.status(result.status).send(result.body);
+        // });
 
         // Answer
         this.router.post('/api/quest/answer', async (req: express.Request, res: express.Response) => {
-            if (!req.body) {
-                return res.status(400).send({ message: 'no quest to update' });
+            if (!req.body.questId || !req.body.answer) {
+                return res.status(400).send({ message: 'questId and answer required' });
             }
-            const result = await questController.updateQuest(req.body);
-            res.status(result.status).send(result.body);
+            const result = await userQuestController.answerOnQuest(req.body.answer, req.body.questId, req.user.id);
+            res.status(result.status).send(result.body)
         });
     }
 }

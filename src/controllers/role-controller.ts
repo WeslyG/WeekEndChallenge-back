@@ -4,7 +4,7 @@ import { configuration } from '../configuration/configuration';
 import { RoleSchema } from '../schemas/role';
 import { IRole } from '../interfaces/role';
 
-const Role = mongoose.model('Role', RoleSchema);
+const Role = mongoose.model<IRole>('Role', RoleSchema);
 
 export class RoleController {
 
@@ -18,7 +18,7 @@ export class RoleController {
                     name: configuration.baseRoles.admin
                 });
                 
-                const result = await <IRole>adminRole.save();
+                const result = await adminRole.save();
                 console.log('Role ' + result.name + ' saved');
             }
 
@@ -30,7 +30,7 @@ export class RoleController {
                     name: configuration.baseRoles.user
                 });
                 
-                const result = await <IRole>userRole.save();
+                const result = await userRole.save();
                 console.log('Role ' + result.name + ' saved');
             }
 

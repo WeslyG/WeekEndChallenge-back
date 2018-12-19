@@ -8,13 +8,13 @@ import { createToken } from '../helpers/helpers';
 import { userRoleController } from './user-role-controller';
 import { configuration } from '../configuration/configuration';
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model<IUser>('User', UserSchema);
 
 export class UserController {
 
     public async login(login: string, password: string) {
         try {
-            const user = await <IUser>User.findOne({ login }); 
+            const user = await User.findOne({ login }); 
             if (!user) {
                 return new Result(400, 'Invalid login or password.');
             }
@@ -48,7 +48,7 @@ export class UserController {
                     passwordHash: hash
                 });
 
-                const result = await <IUser>newUser.save();
+                const result = await newUser.save();
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
                 return new Result(201, result);
 
@@ -67,12 +67,7 @@ export class UserController {
             const returnList: IUser[] = [];
             
             _(userList).forEach((value: IUser) => {
-                returnList.push({
-                    id: value.id,
-                    name: value.name,
-                    login: value.login,
-                    gender: value.gender
-                });
+                returnList.push(value);
             });
           
             return new Result(200, returnList);
@@ -84,7 +79,7 @@ export class UserController {
 
     public async getUserById(userId: string) {
         try {
-            const user = await <IUser>User.findById(userId);
+            const user = await User.findById(userId);
 
             if (!user) {
                 return new Result(400, 'Invallid user.');
@@ -106,7 +101,7 @@ export class UserController {
         try {
             const query = { '_id': user.id };
             const update = { name: user.name, gender: user.gender };
-            const newUser = await <IUser>User.findOneAndUpdate(query, update, { new: true });
+            const newUser = await User.findOneAndUpdate(query, update, { new: true });
             
             return new Result(200, {
                 id: newUser.id,
@@ -136,7 +131,7 @@ export class UserController {
                     passwordHash: hash
                 });
                 
-                const result = await <IUser>newUser.save();
+                const result = await newUser.save();
                 console.log('User ' + result.name + ' saved');
                 
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);

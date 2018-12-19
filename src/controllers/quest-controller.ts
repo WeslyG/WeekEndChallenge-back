@@ -5,13 +5,14 @@ import { IQuest } from '../interfaces/quest';
 import { QuestSchema } from '../schemas/quest';
 import { IQuestResult } from '../interfaces/questResult';
 
-const Quest = mongoose.model('Quest', QuestSchema);
+const Quest = mongoose.model<IQuest>('Quest', QuestSchema);
 
 export class QuestController {
+
     // GET one quest 
     public async getQuest(questId: string) {
         try {
-            const quest = await <IQuest>Quest.findById(questId);
+            const quest = await Quest.findById(questId);
             if (!quest) {
                 return new Result(400, { message: 'quest invalid'});
             }
@@ -23,16 +24,16 @@ export class QuestController {
                 description: quest.description,
             });
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
-    
+
     // New Quest
     public async newQuest(quest: IQuest) {
         try {
             const exist = await Quest.findOne({ name: quest.name });
             if (!exist) {
+                // TODO: попробовать типизировать
                 const newQuest = new Quest
                     ({
                         name: quest.name,
@@ -41,13 +42,12 @@ export class QuestController {
                         description: quest.description,
                         answers: quest.answers
                     });
-                const result = await <IQuest>newQuest.save();
+                const result = await newQuest.save();
                 return new Result(201, result);
             } else {
                 return new Result(409, { message: 'quest exist' });
             }
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
@@ -64,7 +64,7 @@ export class QuestController {
                 price: quest.price,
                 answers: quest.answers
             };
-            const newQuest = await <IQuest>Quest.findOneAndUpdate(query, update, { new: true });
+            const newQuest = await Quest.findOneAndUpdate(query, update, { new: true });
 
             return new Result(200, {
                 id: newQuest.id,
@@ -81,39 +81,32 @@ export class QuestController {
     }
 
     // Delete Quest
-    public async deleteQuest(quest: IQuest) {
-        try {
-            const query = { '_id': quest.id };
-            const deleteQuest = await <IQuest>Quest.findOneAndDelete(query);
-            console.log(deleteQuest);
-            return new Result(200, deleteQuest);
-        } catch (err) {
-            console.log(err);
-            return new Result(500, err);
-        }
-    }
+    // public async deleteQuest(quest: IQuest) {
+    //     try {
+    //         const query = { '_id': quest.id };
+    //         const deleteQuest = await Quest.findOneAndDelete(query);
+    //         console.log(deleteQuest);
+    //         return new Result(200, deleteQuest);
+    //     } catch (err) {
+    //         console.log(err);
+    //         return new Result(500, err);
+    //     }
+    // }
 
-
-    // GET questList
     public async getQuestList() {
-        const questlist = await Quest.find();
         try {
-            const returnList: any = [];
-            _(questlist).forEach((value: IQuest) => {
-                // TODO: Пока что магия, не вникать!
-                let tag = _.keys(_.pickBy(returnList, { tag: value.tag }))
-                if (tag.length === 0) {
-                        returnList.push({ 
-                            tag: value.tag,
-                            quests: []
-                        })
-                    }
-                returnList[_.keys(_.pickBy(returnList, { tag: value.tag }))[0]].quests.push({
-                        id: value.id,
-                        name: value.name,
-                        price: value.price,
-                        description: value.description
-                    });
+            // const test = await this.getQuestForAnswer();
+            const questlist = await Quest.find();
+            const tagList = this.getTags(questlist);
+            const returnList = [];
+            // console.log(test);
+            // console.log(questlist);
+
+            _(tagList).forEach((value: string) => {
+                returnList.push({
+                    tag: value,
+                    quests: _.filter(questlist, { 'tag': value })
+                });
             });
             return new Result(200, returnList);
         } catch (err) {
@@ -121,6 +114,33 @@ export class QuestController {
             return new Result(500, err);
         }
     }
+
+    private getTags(questList: IQuest[]) {
+        const returnList: string[] = [];
+        _(questList).forEach((value: IQuest) => {
+            if (_.indexOf(returnList, value.tag) === -1) {
+                returnList.push(value.tag);
+            }
+        });
+        return returnList;
+    }
+
+    private async getQuestForAnswer() {
+        // TODO:
+        const result = [];
+        const questlist = await Quest.find();
+        _(questlist).forEach((res) => {
+            result.push({
+                id: res._id,
+                name: res.name,
+                price: res.price,
+                tag: res.tag
+            })
+            result.push(res)
+        });
+        return result;
+    }
+
 }
 
 export const questController = new QuestController();

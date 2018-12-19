@@ -14,7 +14,6 @@ import { questProtectRoutes } from './routes/protected/quest-routes';
 import { roleProtectedRoutes } from './routes/protected/role-routes';
 
 
-
 class App {
   public app: express.Application;
 
