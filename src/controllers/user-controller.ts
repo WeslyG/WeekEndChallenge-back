@@ -1,12 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
+import { Document } from "mongoose";
 import { Result } from '../models/result';
 import { IUser } from '../interfaces/user';
 import { UserSchema } from '../schemas/user';
 import { createToken } from '../helpers/helpers';
 import { userRoleController } from './user-role-controller';
 import { configuration } from '../configuration/configuration';
+import { IQuest } from '../interfaces/quest';
 
 const User = mongoose.model<IUser>('User', UserSchema);
 
@@ -45,7 +47,8 @@ export class UserController {
                 ({
                     login,
                     name,
-                    passwordHash: hash
+                    passwordHash: hash,
+                    score: 0
                 });
 
                 const result = await newUser.save();
@@ -97,23 +100,38 @@ export class UserController {
         }
     }
 
-    public async updateUser(user: IUser) {
+    public async updateUser(user: IUser, score: number) {
         try {
             const query = { '_id': user.id };
-            const update = { name: user.name, gender: user.gender };
+            const update = { name: user.name, gender: user.gender, score};
             const newUser = await User.findOneAndUpdate(query, update, { new: true });
             
             return new Result(200, {
                 id: newUser.id,
                 name: newUser.name,
                 login: newUser.login,
-                gender: newUser.gender
+                gender: newUser.gender,
+                score: newUser.score
             });
         } catch (err) {
             console.log(err);
             return new Result(500, err);
         }
     }
+
+    public async addScoreForQuest(user: IUser, quest: IQuest) {
+        try {
+            console.log(user.score);
+            console.log(quest.price);
+            const score = user.score + quest.price
+            const result = await this.updateUser(user, score);
+            console.log(result);
+            return result;
+        } catch (err) {
+            return new Result(500, err);
+        }
+    }
+
 
     public async createBasicUsers() {
         try {
