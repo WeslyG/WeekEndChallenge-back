@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as mongoose from 'mongoose';
 import * as _ from 'lodash';
-import { Document } from "mongoose";
 import { Result } from '../models/result';
 import { IUser } from '../interfaces/user';
 import { UserSchema } from '../schemas/user';
@@ -9,7 +8,11 @@ import { createToken } from '../helpers/helpers';
 import { userRoleController } from './user-role-controller';
 import { configuration } from '../configuration/configuration';
 import { IQuest } from '../interfaces/quest';
+import { userQuestController } from './user-quest-controller';
+import { QuestSchema } from '../schemas/quest';
 
+
+const Quest = mongoose.model<IQuest>('Quest', QuestSchema);
 const User = mongoose.model<IUser>('User', UserSchema);
 
 export class UserController {
@@ -59,7 +62,6 @@ export class UserController {
                 return new Result(409, { message: `user ${login} exist`});
             }
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
@@ -75,7 +77,6 @@ export class UserController {
           
             return new Result(200, returnList);
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
@@ -83,24 +84,40 @@ export class UserController {
     public async getUserById(userId: string) {
         try {
             const user = await User.findById(userId);
-
+            const questsId = await userQuestController.getQuestsByUser(user)
             if (!user) {
                 return new Result(400, 'Invallid user.');
             }
-            
+            const resolveList = [];
+
+            // Promise.all(questsId.map()).then(res => {
+            //     console.log(res);
+            // })
+
+            // _(questsId).forEach((value: string) => {
+            // for (let len = questsId.length, i = 0; i < len; i++) {                
+            //     returnList.push({
+            //         test: 'hey you'
+            //     })
+            // }
+            console.log(resolveList);
+
             return new Result(200, {
                 id: user.id,
                 name: user.name,
                 login: user.login,
-                gender: user.gender
+                gender: user.gender,
+                score: user.score,
+                quests: resolveList
             });
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
 
+
     public async updateUser(user: IUser, score: number) {
+        // FIXME: workaround - score
         try {
             const query = { '_id': user.id };
             const update = { name: user.name, gender: user.gender, score};
@@ -114,18 +131,14 @@ export class UserController {
                 score: newUser.score
             });
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }
 
     public async addScoreForQuest(user: IUser, quest: IQuest) {
         try {
-            console.log(user.score);
-            console.log(quest.price);
             const score = user.score + quest.price
             const result = await this.updateUser(user, score);
-            console.log(result);
             return result;
         } catch (err) {
             return new Result(500, err);
@@ -150,14 +163,12 @@ export class UserController {
                 });
                 
                 const result = await newUser.save();
-                console.log('User ' + result.name + ' saved');
                 
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
             }
             // user already exist
         } catch (err) {
-            console.log(err);
             return new Result(500, err);
         }
     }

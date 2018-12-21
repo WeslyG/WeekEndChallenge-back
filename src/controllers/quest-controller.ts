@@ -16,6 +16,7 @@ export class QuestController {
             if (!quest) {
                 return new Result(400, { message: 'quest invalid'});
             }
+            // FIXME: to types
             return new Result(200, {
                 id: quest.id,
                 name: quest.name,
@@ -33,7 +34,7 @@ export class QuestController {
         try {
             const exist = await Quest.findOne({ name: quest.name });
             if (!exist) {
-                // TODO: попробовать типизировать
+                // TODO: попробовать типизировать (проблема с extends Documents)
                 const newQuest = new Quest
                     ({
                         name: quest.name,
@@ -80,19 +81,6 @@ export class QuestController {
         }
     }
 
-    // Delete Quest
-    // public async deleteQuest(quest: IQuest) {
-    //     try {
-    //         const query = { '_id': quest.id };
-    //         const deleteQuest = await Quest.findOneAndDelete(query);
-    //         console.log(deleteQuest);
-    //         return new Result(200, deleteQuest);
-    //     } catch (err) {
-    //         console.log(err);
-    //         return new Result(500, err);
-    //     }
-    // }
-
     public async getQuestList() {
         try {
             // const test = await this.getQuestForAnswer();
@@ -126,7 +114,7 @@ export class QuestController {
     }
 
     private async getQuestForAnswer() {
-        // TODO:
+        // TODO: поменять как то модель квеста, чтоб не отдавалось все
         const result = [];
         const questlist = await Quest.find();
         _(questlist).forEach((res) => {

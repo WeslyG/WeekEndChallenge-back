@@ -34,6 +34,21 @@ export class UserQuestController {
         }
     }
 
+    public async getQuestsByUser(user: IUser) {
+        try {
+            const data = await UserQuest.find({ userId: user.id })
+            const returnData = [];
+            _(data).forEach((value: IUserQuest) => {
+                returnData.push(value.questId)
+            })
+            
+            return returnData;
+        } catch (err) {
+            return err;
+        }
+
+    }
+
     private async addQuestToUser(user: IUser, quest: IQuest) {
         try {
             const newUserQuest = new UserQuest({

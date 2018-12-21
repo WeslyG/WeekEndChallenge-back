@@ -46,7 +46,7 @@ class UserProtectedRoutes {
             } else if (req.user.id != req.body.id) {
                 return res.status(403).send('You are not allowed to change ' + req.body.name + ' profile!');
             }
-            const result = await userController.updateUser(req.body);
+            const result = await userController.updateUser(req.body, 0);
             res.status(result.status).send(result.body);
         });
     }

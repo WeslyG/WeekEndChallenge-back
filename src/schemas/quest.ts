@@ -22,6 +22,10 @@ export const QuestSchema = new Schema({
     answers: {
         type: [String],
         required: true
+    },
+    enabled: {
+        type: Boolean,
+        required: true
     }
     // links/files
 }, { collection: 'quest' });
