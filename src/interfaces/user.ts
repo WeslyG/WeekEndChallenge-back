@@ -7,5 +7,7 @@ export interface IUser extends Document {
     login?: string;
     gender?: Gender;
     score?: number;
+    questCount?: number;
+    enabled?: boolean;
     passwordHash?: string;
 }

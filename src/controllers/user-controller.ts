@@ -9,10 +9,7 @@ import { userRoleController } from './user-role-controller';
 import { configuration } from '../configuration/configuration';
 import { IQuest } from '../interfaces/quest';
 import { userQuestController } from './user-quest-controller';
-import { QuestSchema } from '../schemas/quest';
 
-
-const Quest = mongoose.model<IQuest>('Quest', QuestSchema);
 const User = mongoose.model<IUser>('User', UserSchema);
 
 export class UserController {
@@ -39,8 +36,6 @@ export class UserController {
         }
     }
 
-
-    // TODO: возвращать красиво
     public async register(name: string, login: string, password: string) {
         try {
             const user = await User.findOne({ login });
@@ -53,30 +48,22 @@ export class UserController {
                     login,
                     name,
                     passwordHash: hash,
-                    score: 0
+                    enabled: true,
+                    score: 0,
+                    questCount: 0
                 });
-
                 const result = await newUser.save();
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
-                return new Result(201, result);
-
+                return new Result(201, {
+                    id: newUser.id,
+                    login: newUser.login,
+                    name: newUser.name,
+                    score: newUser.score,
+                    questCount: newUser.questCount
+                });
             } else {
                 return new Result(409, { message: `user ${login} exist`});
             }
-        } catch (err) {
-            return new Result(500, err);
-        }
-    }
-
-    public async getUserList() {
-        try {
-            const userList = await User.find();
-            const returnList: IUser[] = [];
-
-            _(userList).forEach((value: IUser) => {
-                returnList.push(value);
-            });
-            return new Result(200, returnList);
         } catch (err) {
             return new Result(500, err);
         }
@@ -95,7 +82,8 @@ export class UserController {
                 login: user.login,
                 gender: user.gender,
                 score: user.score,
-                quests: userQuests
+                questCount: user.questCount,
+                quests: userQuests,
             });
         } catch (err) {
             return new Result(500, err);
@@ -103,11 +91,17 @@ export class UserController {
     }
 
 
-    public async updateUser(user: IUser, score: number) {
-        // FIXME: workaround - score
+    public async updateUser(user) {
+        // че за бред, надо вытащить нормального юзера авторизированного да и все
         try {
             const query = { '_id': user.id };
-            const update = { name: user.name, gender: user.gender, score};
+            const update = {
+                name: user.name,
+                gender: user.gender,
+                score: user.score,
+                questCount: user.questCount,
+                enabled: user.enabled
+            };
             const newUser = await User.findOneAndUpdate(query, update, { new: true });
 
             return new Result(200, {
@@ -115,7 +109,9 @@ export class UserController {
                 name: newUser.name,
                 login: newUser.login,
                 gender: newUser.gender,
-                score: newUser.score
+                score: newUser.score,
+                questCount: newUser.questCount,
+                enabled: newUser.enabled
             });
         } catch (err) {
             return new Result(500, err);
@@ -124,8 +120,17 @@ export class UserController {
 
     public async addScoreForQuest(user: IUser, quest: IQuest) {
         try {
-            const score = user.score + quest.price;
-            const result = await this.updateUser(user, score);
+            const newUser = {
+                id: user.id,
+                name: user.name,
+                login: user.login,
+                gender: user.gender,
+                score: user.score + quest.price,
+                enabled: user.enabled,
+                questCount: user.questCount + 1
+            };
+
+            const result = await this.updateUser(newUser);
             return result;
         } catch (err) {
             return new Result(500, err);
@@ -155,6 +160,21 @@ export class UserController {
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
             }
             // user already exist
+        } catch (err) {
+            return new Result(500, err);
+        }
+    }
+
+    public async getUserList() {
+        // TODO:
+        try {
+            const userList = await User.find({ enabled: true});
+            // const returnList: IUser[] = [];
+
+            // _(userList).forEach((value: IUser) => {
+            //     returnList.push(value);
+            // });
+            return new Result(200, userList);
         } catch (err) {
             return new Result(500, err);
         }

@@ -15,6 +15,10 @@ export const UserSchema = new Schema({
         type: Number,
         required: false
     },
+    questCount: {
+        type: Number,
+        required: false
+    },
     gender: {
         type: Number,
         required: false
@@ -22,5 +26,9 @@ export const UserSchema = new Schema({
     passwordHash: {
         type: String,
         required: true
+    },
+    enabled: {
+        type: Boolean,
+        required: false
     }
 }, { collection: 'users' });

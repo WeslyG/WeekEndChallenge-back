@@ -65,8 +65,8 @@ export class UserQuestController {
 
     private async existUserQuest(userId, questId: string) {
         try {
-            const data = await UserQuest.find({ userId, questId});
-            if (data[0]) {
+            const quest = await UserQuest.find({ userId, questId});
+            if (quest[0]) {
                 return true;
             } else {
                 return false;
