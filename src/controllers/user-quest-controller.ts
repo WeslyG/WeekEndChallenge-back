@@ -8,41 +8,41 @@ import { UserQuestSchema } from '../schemas/user-quest';
 import { IQuest } from '../interfaces/quest';
 import { IUser } from '../interfaces/user';
 import { userController } from './user-controller';
+import { Quest } from '../models/questReturnModel';
 
 const User = mongoose.model<IUser>('User', UserSchema);
-const Quest = mongoose.model<IQuest>('Quest', QuestSchema);
+const QuestModel = mongoose.model<IQuest>('Quest', QuestSchema);
 const UserQuest = mongoose.model<IUserQuest>('UserQuest', UserQuestSchema);
 
 export class UserQuestController {
 
     public async answerOnQuest(answer, questId, userId: string) {
         const user = await User.findById(userId);
-        const quest = await Quest.findById(questId);
+        const quest = await QuestModel.findById(questId);
         const exist = await this.existUserQuest(userId, questId);
 
         if (exist === true) {
-            return new Result(200, { message: "answer exist" })
+            return new Result(200, { message: 'answer exist' });
         }
         if (quest && user) {
-            if (quest.answers.indexOf(answer) != -1) {
-                return await this.addQuestToUser(user, quest)
+            if (quest.answers.indexOf(answer) !== -1) {
+                return await this.addQuestToUser(user, quest);
             } else {
-                return new Result(200, { message: false })
+                return new Result(200, { message: false });
             }
         } else {
-            return new Result(400, { message: 'quest or user not found' })
+            return new Result(400, { message: 'quest or user not found' });
         }
     }
 
     public async getQuestsByUser(user: IUser) {
         try {
-            const data = await UserQuest.find({ userId: user.id })
-            const returnData = [];
-            _(data).forEach((value: IUserQuest) => {
-                returnData.push(value.questId)
-            })
-            
-            return returnData;
+            const userQuests = await UserQuest.find({ userId: user.id });
+            const ids = userQuests.map(q => q.questId);
+            const questFromDb = await QuestModel.find({ _id: ids });
+
+            const result = questFromDb.map(q => new Quest(q));
+            return result;
         } catch (err) {
             return err;
         }
@@ -56,8 +56,8 @@ export class UserQuestController {
                 questId: quest.id
             });
             await newUserQuest.save();
-            const newUser = await userController.addScoreForQuest(user, quest);
-            return new Result(200, newUser);
+            await userController.addScoreForQuest(user, quest);
+            return new Result(200, { message: true});
         } catch (err) {
             return new Result(500, err);
         }
@@ -65,7 +65,7 @@ export class UserQuestController {
 
     private async existUserQuest(userId, questId: string) {
         try {
-            const data = await UserQuest.find({ userId, questId})
+            const data = await UserQuest.find({ userId, questId});
             if (data[0]) {
                 return true;
             } else {
@@ -75,6 +75,8 @@ export class UserQuestController {
             return err;
         }
     }
+
+
 }
 
 export const userQuestController = new UserQuestController();

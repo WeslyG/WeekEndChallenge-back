@@ -6,13 +6,13 @@ import { Result } from '../models/result';
 const Test = mongoose.model('Test', TestSchema);
 
 export class TestController {
-    
+
     public async test(mystring: string) {
         try {
             const text = await Test.findOne({ template: mystring });
             console.log(text);
-            
-            if(!text) {
+
+            if (!text) {
                 const newMessage = new Test
                     ({
                         template: mystring
@@ -24,11 +24,11 @@ export class TestController {
             } else {
                 return new Result(400, { message: `Template exist` });
             }
-        } catch(err) {
+        } catch (err) {
             console.log(err);
             return new Result(500, err);
         }
     }
 }
 
-export const testController = new TestController();  
+export const testController = new TestController();

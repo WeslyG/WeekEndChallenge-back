@@ -11,25 +11,25 @@ export class RoleController {
     public async createBasicRoles() {
         try {
             let adminRole = await Role.findOne({ name: configuration.baseRoles.admin });
-        
+
             if (!adminRole) {
-                adminRole = new Role 
+                adminRole = new Role
                 ({
                     name: configuration.baseRoles.admin
                 });
-                
+
                 const result = await adminRole.save();
                 console.log('Role ' + result.name + ' saved');
             }
 
             let userRole = await Role.findOne({ name: configuration.baseRoles.user });
-        
+
             if (!userRole) {
-                userRole = new Role 
+                userRole = new Role
                 ({
                     name: configuration.baseRoles.user
                 });
-                
+
                 const result = await userRole.save();
                 console.log('Role ' + result.name + ' saved');
             }

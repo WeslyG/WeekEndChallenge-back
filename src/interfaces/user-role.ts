@@ -1,7 +1,7 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose';
 
 export interface IUserRole extends Document {
     id?: string;
-    userId?: string,
-    roleId?: string
+    userId?: string;
+    roleId?: string;
 }

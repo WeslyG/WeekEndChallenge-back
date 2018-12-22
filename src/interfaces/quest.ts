@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose';
 
 export interface IQuest extends Document {
     id?: string;
@@ -6,5 +6,6 @@ export interface IQuest extends Document {
     tag?: string;
     price?: number;
     description?: string;
-    answers?: [string];
+    enabled: boolean;
+    answers?: Array<string>;
 }

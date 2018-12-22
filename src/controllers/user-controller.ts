@@ -19,19 +19,19 @@ export class UserController {
 
     public async login(login: string, password: string) {
         try {
-            const user = await User.findOne({ login }); 
+            const user = await User.findOne({ login });
             if (!user) {
                 return new Result(400, 'Invalid login or password.');
             }
-            
-            const compareResult = await bcrypt.compare(password, user.passwordHash); 
-            
+
+            const compareResult = await bcrypt.compare(password, user.passwordHash);
+
             if (compareResult) {
                 const tokenInput = _.pick(user, 'id');
 
                 return new Result(200, {access_token: createToken(tokenInput)});
             } else {
-                
+
                 return new Result(400, { message: 'Invalid login or password'});
             }
         } catch (err) {
@@ -39,6 +39,8 @@ export class UserController {
         }
     }
 
+
+    // TODO: возвращать красиво
     public async register(name: string, login: string, password: string) {
         try {
             const user = await User.findOne({ login });
@@ -46,7 +48,7 @@ export class UserController {
             if (!user) {
                 const hash = await bcrypt.hash(password, configuration.saltRounds);
 
-                const newUser = new User 
+                const newUser = new User
                 ({
                     login,
                     name,
@@ -70,11 +72,10 @@ export class UserController {
         try {
             const userList = await User.find();
             const returnList: IUser[] = [];
-            
+
             _(userList).forEach((value: IUser) => {
                 returnList.push(value);
             });
-          
             return new Result(200, returnList);
         } catch (err) {
             return new Result(500, err);
@@ -84,31 +85,17 @@ export class UserController {
     public async getUserById(userId: string) {
         try {
             const user = await User.findById(userId);
-            const questsId = await userQuestController.getQuestsByUser(user)
+            const userQuests = await userQuestController.getQuestsByUser(user);
             if (!user) {
                 return new Result(400, 'Invallid user.');
             }
-            const resolveList = [];
-
-            // Promise.all(questsId.map()).then(res => {
-            //     console.log(res);
-            // })
-
-            // _(questsId).forEach((value: string) => {
-            // for (let len = questsId.length, i = 0; i < len; i++) {                
-            //     returnList.push({
-            //         test: 'hey you'
-            //     })
-            // }
-            console.log(resolveList);
-
             return new Result(200, {
                 id: user.id,
                 name: user.name,
                 login: user.login,
                 gender: user.gender,
                 score: user.score,
-                quests: resolveList
+                quests: userQuests
             });
         } catch (err) {
             return new Result(500, err);
@@ -122,7 +109,7 @@ export class UserController {
             const query = { '_id': user.id };
             const update = { name: user.name, gender: user.gender, score};
             const newUser = await User.findOneAndUpdate(query, update, { new: true });
-            
+
             return new Result(200, {
                 id: newUser.id,
                 name: newUser.name,
@@ -137,7 +124,7 @@ export class UserController {
 
     public async addScoreForQuest(user: IUser, quest: IQuest) {
         try {
-            const score = user.score + quest.price
+            const score = user.score + quest.price;
             const result = await this.updateUser(user, score);
             return result;
         } catch (err) {
@@ -152,18 +139,18 @@ export class UserController {
 
             if (!user) {
                 const password = configuration.baseUsers.admin.defaultPassword;
-            
+
                 const hash = await bcrypt.hash(password, configuration.saltRounds);
 
-                const newUser = new User 
+                const newUser = new User
                 ({
                     login: configuration.baseUsers.admin.login,
                     name: configuration.baseUsers.admin.name,
                     passwordHash: hash
                 });
-                
+
                 const result = await newUser.save();
-                
+
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.admin);
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
             }

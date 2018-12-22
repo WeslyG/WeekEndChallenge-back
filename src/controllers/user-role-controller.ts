@@ -76,9 +76,9 @@ export class UserRoleController {
             const adminRole = await Role.findOne({ name: configuration.baseRoles.admin });
             const userAdminRole = await UserRole.findOne({ userId, roleId: adminRole.id });
             if (userAdminRole) {
-                return new Result(200, true);;
+                return new Result(200, true);
             } else {
-                return new Result(200, false);;
+                return new Result(200, false);
             }
         } catch (err) {
             return new Result(500, err);

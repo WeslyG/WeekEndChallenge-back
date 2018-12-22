@@ -3,16 +3,17 @@ import * as mongoose from 'mongoose';
 import { Result } from '../models/result';
 import { IQuest } from '../interfaces/quest';
 import { QuestSchema } from '../schemas/quest';
-import { IQuestResult } from '../interfaces/questResult';
+import { Quest } from '../models/questReturnModel';
 
-const Quest = mongoose.model<IQuest>('Quest', QuestSchema);
+
+const QuestModel = mongoose.model<IQuest>('Quest', QuestSchema);
 
 export class QuestController {
 
     // GET one quest 
     public async getQuest(questId: string) {
         try {
-            const quest = await Quest.findById(questId);
+            const quest = await QuestModel.findById(questId);
             if (!quest) {
                 return new Result(400, { message: 'quest invalid'});
             }
@@ -32,16 +33,17 @@ export class QuestController {
     // New Quest
     public async newQuest(quest: IQuest) {
         try {
-            const exist = await Quest.findOne({ name: quest.name });
+            const exist = await QuestModel.findOne({ name: quest.name });
             if (!exist) {
                 // TODO: попробовать типизировать (проблема с extends Documents)
-                const newQuest = new Quest
+                const newQuest = new QuestModel
                     ({
                         name: quest.name,
                         tag: quest.tag,
                         price: quest.price,
                         description: quest.description,
-                        answers: quest.answers
+                        answers: quest.answers,
+                        enabled: quest.enabled
                     });
                 const result = await newQuest.save();
                 return new Result(201, result);
@@ -63,9 +65,10 @@ export class QuestController {
                 description: quest.description,
                 tag: quest.tag,
                 price: quest.price,
+                enabled: quest.enabled,
                 answers: quest.answers
             };
-            const newQuest = await Quest.findOneAndUpdate(query, update, { new: true });
+            const newQuest = await QuestModel.findOneAndUpdate(query, update, { new: true });
 
             return new Result(200, {
                 id: newQuest.id,
@@ -73,6 +76,7 @@ export class QuestController {
                 description: newQuest.description,
                 tag: newQuest.tag,
                 price: newQuest.price,
+                enabled: quest.enabled,
                 answers: newQuest.answers
             });
         } catch (err) {
@@ -83,17 +87,15 @@ export class QuestController {
 
     public async getQuestList() {
         try {
-            // const test = await this.getQuestForAnswer();
-            const questlist = await Quest.find();
+            const questlist = await QuestModel.find({ enabled: true });
             const tagList = this.getTags(questlist);
             const returnList = [];
-            // console.log(test);
-            // console.log(questlist);
-
+            
             _(tagList).forEach((value: string) => {
+                const quest = questlist.map(q => new Quest(q));
                 returnList.push({
                     tag: value,
-                    quests: _.filter(questlist, { 'tag': value })
+                    quests: _.filter(quest, { 'tag': value })
                 });
             });
             return new Result(200, returnList);
@@ -112,23 +114,6 @@ export class QuestController {
         });
         return returnList;
     }
-
-    private async getQuestForAnswer() {
-        // TODO: поменять как то модель квеста, чтоб не отдавалось все
-        const result = [];
-        const questlist = await Quest.find();
-        _(questlist).forEach((res) => {
-            result.push({
-                id: res._id,
-                name: res.name,
-                price: res.price,
-                tag: res.tag
-            })
-            result.push(res)
-        });
-        return result;
-    }
-
 }
 
 export const questController = new QuestController();
