@@ -9,6 +9,7 @@ import { userRoleController } from './user-role-controller';
 import { configuration } from '../configuration/configuration';
 import { IQuest } from '../interfaces/quest';
 import { userQuestController } from './user-quest-controller';
+import { IScoreBoard } from '../interfaces/scoreBoard';
 
 const User = mongoose.model<IUser>('User', UserSchema);
 
@@ -166,15 +167,31 @@ export class UserController {
     }
 
     public async getUserList() {
-        // TODO:
         try {
-            const userList = await User.find({ enabled: true});
-            // const returnList: IUser[] = [];
+            const userList = await User.find(
+                { enabled: true },
+                ['name', 'score', 'questCount'],
+                {
+                    sort: {
+                        score: -1
+                        // TODO: кто последний
+                    }
+                }
+                );
+            const returnList: IScoreBoard[] = [];
 
-            // _(userList).forEach((value: IUser) => {
-            //     returnList.push(value);
-            // });
-            return new Result(200, userList);
+            let i = 1;
+            _(userList).forEach(value => {
+                returnList.push({
+                    id: value.id,
+                    position: i++,
+                    name: value.name,
+                    score: value.score,
+                    questCount: value.questCount
+                });
+            });
+
+            return new Result(200, returnList);
         } catch (err) {
             return new Result(500, err);
         }
