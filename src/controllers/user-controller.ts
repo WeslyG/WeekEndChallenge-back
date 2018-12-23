@@ -27,7 +27,7 @@ export class UserController {
             if (compareResult) {
                 const tokenInput = _.pick(user, 'id');
 
-                return new Result(200, {access_token: createToken(tokenInput)});
+                return new Result(200, { access_token: createToken(tokenInput), id: user.id});
             } else {
 
                 return new Result(400, { message: 'Invalid login or password'});

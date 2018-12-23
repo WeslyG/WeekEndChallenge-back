@@ -2,6 +2,7 @@ import * as express from 'express';
 import { userController } from '../../controllers/user-controller';
 import { checkToken } from '../../helpers/helpers';
 
+
 class UserProtectedRoutes {
     public router: express.Router = express.Router();
 

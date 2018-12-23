@@ -13,7 +13,7 @@ class RoleProtectedRoutes {
 
         // check for all routes. For selective check use it like this:
         // this.router.get('...', checkToken, (req: express.Req...
-        
+
         this.router.use(checkToken);
         this.router.use(function (err, req, res, next) {
             if (err.name === 'UnauthorizedError') {
@@ -28,7 +28,7 @@ class RoleProtectedRoutes {
             const result = await userRoleController.isAdminCheck(req.user.id);
             res.status(result.status).send(result.body);
         });
-        
+
     }
 }
 

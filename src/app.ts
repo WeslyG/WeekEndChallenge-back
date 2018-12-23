@@ -33,8 +33,8 @@ class App {
     try {
       mongoose.set('useCreateIndex', true);
 
-      await mongoose.connect(configuration.dataBase.host + configuration.dataBase.name, { useNewUrlParser: true })
-      console.log('MongoDB has started...')
+      await mongoose.connect(configuration.dataBase.host + configuration.dataBase.name, { useNewUrlParser: true });
+      console.log('MongoDB has started...');
 
       this.dbSeed();
     } catch (err) {
@@ -61,10 +61,11 @@ class App {
     this.app.use(userProtectedRoutes);
     this.app.use(roleProtectedRoutes);
     this.app.use(questProtectRoutes);
+
   }
 
   private setCors() {
-    this.app.use(cors({origin:function(origin, callback){
+    this.app.use(cors({origin: function(origin, callback) {
         callback(null, true);
         }, credentials: true})
     );

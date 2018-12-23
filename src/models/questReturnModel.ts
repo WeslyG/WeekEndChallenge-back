@@ -7,10 +7,12 @@ export class Quest {
         this.name = quest.name;
         this.tag = quest.tag;
         this.price = quest.price;
+        this.completed = quest.completed;
     }
 
     id: string;
     name: string;
     tag: string;
     price: number;
+    completed: boolean;
 }

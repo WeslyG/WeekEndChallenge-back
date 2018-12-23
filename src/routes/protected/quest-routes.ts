@@ -24,6 +24,11 @@ class QuestProtectRoutes {
             res.status(result.status).send(result.body);
         });
 
+        this.router.get('/api/quest/protected', async (req: express.Request, res: express.Response) => {
+            const result = await questController.getQuestList(req.user.id);
+            res.status(result.status).send(result.body);
+        });
+
         // Find one
         this.router.get('/api/quest/:id', async (req: express.Request, res: express.Response) => {
             const result = await questController.getQuest(req.params.id, req.user.id);
@@ -39,16 +44,6 @@ class QuestProtectRoutes {
             const result = await questController.updateQuest(req.body);
             res.status(result.status).send(result.body);
         });
-
-        // Delete
-        // TODO: enabled: true
-        // this.router.delete('/api/quest', async (req: express.Request, res: express.Response) => {
-        //     if (!req.body.id) {
-        //         return res.status(400).send({ message: 'id is required' });
-        //     }
-        //     const result = await questController.deleteQuest(req.body);
-        //     res.status(result.status).send(result.body);
-        // });
 
         // Answer
         this.router.post('/api/quest/answer', async (req: express.Request, res: express.Response) => {

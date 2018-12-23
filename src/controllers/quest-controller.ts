@@ -89,14 +89,88 @@ export class QuestController {
         }
     }
 
-    public async getQuestList() {
+    public async getQuestList(userId?: string) {
         try {
             const questlist = await QuestModel.find({ enabled: true });
             const tagList = this.getTags(questlist);
+            let templateList = [];
             const returnList = [];
-            
+
+            if (userId) {
+                const completed = await this.getQuestIdForUser(userId);
+                _(questlist).forEach(v => {
+                    if (completed.indexOf(v.id) === -1) {
+                        templateList.push({
+                            id: v.id,
+                            name: v.name,
+                            tag: v.tag,
+                            price: v.price,
+                            description: v.description,
+                            completed: false
+                        })
+                    } else {
+                        templateList.push({
+                            id: v.id,
+                            name: v.name,
+                            tag: v.tag,
+                            price: v.price,
+                            description: v.description,
+                            completed: true
+                        })
+                    }
+                })
+            } else {
+                templateList = questlist;
+            }
+
             _(tagList).forEach((value: string) => {
-                const quest = questlist.map(q => new Quest(q));
+                const quest = templateList.map(q => new Quest(q));
+                returnList.push({
+                    tag: value,
+                    quests: _.filter(quest, { 'tag': value })
+                });
+            });
+            return new Result(200, returnList);
+        } catch (err) {
+            console.log(err);
+            return new Result(500, err);
+        }
+    }
+
+    public async getQuestList2(userId?: string) {
+        try {
+            const questlist = await QuestModel.find({ enabled: true });
+            const tagList = this.getTags(questlist);
+            const templateList = [];
+            const returnList = [];
+
+            if (userId) {
+                const completed = await this.getQuestIdForUser(userId);
+                _(questlist).forEach(v => {
+                    if (completed.indexOf(v.id) === -1) {
+                        templateList.push({
+                            id: v.id,
+                            name: v.name,
+                            tag: v.tag,
+                            price: v.price,
+                            description: v.description,
+                            completed: false
+                        })
+                    } else {
+                        templateList.push({
+                            id: v.id,
+                            name: v.name,
+                            tag: v.tag,
+                            price: v.price,
+                            description: v.description,
+                            completed: true
+                        })
+                    }
+                })
+            }
+
+            _(tagList).forEach((value: string) => {
+                const quest = templateList.map(q => new Quest(q));
                 returnList.push({
                     tag: value,
                     quests: _.filter(quest, { 'tag': value })
@@ -117,6 +191,18 @@ export class QuestController {
             }
         });
         return returnList;
+    }
+
+    private async getQuestIdForUser(userId: string) {
+        const returnlist = [];
+        const completed = await UserQuest.find(
+            { userId },
+            ['questId']);
+
+        _(completed).forEach(v => {
+            returnlist.push(v.questId)
+        })
+        return returnlist;
     }
 }
 
