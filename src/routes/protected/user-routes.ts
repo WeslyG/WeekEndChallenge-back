@@ -13,16 +13,11 @@ class UserProtectedRoutes {
 
         // check for all routes. For selective check use it like this:
         // this.router.get('...', checkToken, (req: express.Req...
-        this.router.use(checkToken); 
+        this.router.use(checkToken);
         this.router.use(function (err, req, res, next) {
             if (err.name === 'UnauthorizedError') {
                 res.status(401).send({ message: '401 unauthorize'});
             }
-        });
-
-        this.router.get('/api/user', async (req: express.Request, res: express.Response) => {
-            const result = await userController.getUserList();
-            res.status(result.status).send(result.body);
         });
 
         this.router.get('/api/user/me', async (req: express.Request, res: express.Response) => {
@@ -43,10 +38,10 @@ class UserProtectedRoutes {
                 return res.status(400).send({ message: 'id and name required'});
             } else if (req.body.name.match(/^\W.*/)) {
                 return res.status(400).send({ message: 'Name is not valid' });
-            } else if (req.user.id != req.body.id) {
+            } else if (req.user.id !== req.body.id) {
                 return res.status(403).send('You are not allowed to change ' + req.body.name + ' profile!');
             }
-            const result = await userController.updateUser(req.body, 0);
+            const result = await userController.updateUser(req.body);
             res.status(result.status).send(result.body);
         });
     }

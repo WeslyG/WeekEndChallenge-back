@@ -8,4 +8,5 @@ export interface IQuest extends Document {
     description?: string;
     enabled: boolean;
     answers?: Array<string>;
+    completed?: boolean;
 }

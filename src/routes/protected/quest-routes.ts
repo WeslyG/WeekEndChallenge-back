@@ -23,10 +23,10 @@ class QuestProtectRoutes {
             const result = await questController.newQuest(req.body);
             res.status(result.status).send(result.body);
         });
-        
+
         // Find one
         this.router.get('/api/quest/:id', async (req: express.Request, res: express.Response) => {
-            const result = await questController.getQuest(req.params.id);
+            const result = await questController.getQuest(req.params.id, req.user.id);
             res.status(result.status).send(result.body);
         });
 
@@ -56,7 +56,7 @@ class QuestProtectRoutes {
                 return res.status(400).send({ message: 'questId and answer required' });
             }
             const result = await userQuestController.answerOnQuest(req.body.answer, req.body.questId, req.user.id);
-            res.status(result.status).send(result.body)
+            res.status(result.status).send(result.body);
         });
     }
 }

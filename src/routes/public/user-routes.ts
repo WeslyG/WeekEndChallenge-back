@@ -11,14 +11,11 @@ class UserPublicRoutes {
   }
 
   private config(): void {
-    
-    // this.router.get('/api/check', async (req: express.Request, res: express.Response) => {
-    //   const result = await questController.newQuest(req.body.name, req.body.tag, req.body.description, req.body.price, req.body.answers);
-    //   res.status(result.status).send(result.body);
-      // For mock
-      // const result = await testController.test(req.body.name);
-      // return res.status(200).send({ message: result });
-    // });
+
+    this.router.get('/api/user/list', async (req: express.Request, res: express.Response) => {
+      const result = await userController.getUserList();
+      res.status(result.status).send(result.body);
+    });
 
     this.router.post('/api/login', async (req: express.Request, res: express.Response) => {
       if (!req.body.login || !req.body.password) {

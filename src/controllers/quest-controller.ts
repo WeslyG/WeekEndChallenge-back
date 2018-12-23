@@ -4,26 +4,30 @@ import { Result } from '../models/result';
 import { IQuest } from '../interfaces/quest';
 import { QuestSchema } from '../schemas/quest';
 import { Quest } from '../models/questReturnModel';
+import { UserQuestSchema } from '../schemas/user-quest';
+import { IUserQuest } from '../interfaces/user-quest';
 
 
 const QuestModel = mongoose.model<IQuest>('Quest', QuestSchema);
+const UserQuest = mongoose.model<IUserQuest>('UserQuest', UserQuestSchema);
 
 export class QuestController {
 
     // GET one quest 
-    public async getQuest(questId: string) {
+    public async getQuest(questId, userId: string) {
         try {
             const quest = await QuestModel.findById(questId);
             if (!quest) {
                 return new Result(400, { message: 'quest invalid'});
             }
-            // FIXME: to types
+            const completed = await UserQuest.find({questId, userId});
             return new Result(200, {
                 id: quest.id,
                 name: quest.name,
                 tag: quest.tag,
                 price: quest.price,
                 description: quest.description,
+                completed: completed.length === 0 ? false : true
             });
         } catch (err) {
             return new Result(500, err);
