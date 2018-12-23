@@ -180,6 +180,8 @@ export class UserController {
                 );
             const returnList: IScoreBoard[] = [];
 
+            // const userList = await User.find()
+            // userList[0].id.getTimestamp();)
             let i = 1;
             _(userList).forEach(value => {
                 returnList.push({

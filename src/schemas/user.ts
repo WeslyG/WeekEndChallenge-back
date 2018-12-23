@@ -31,4 +31,8 @@ export const UserSchema = new Schema({
         type: Boolean,
         required: false
     }
-}, { collection: 'users' });
+},
+{
+    collection: 'users',
+    timestamps: true
+});

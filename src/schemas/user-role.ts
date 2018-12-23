@@ -12,4 +12,4 @@ export const UserRoleSchema = new Schema({
         required: true,
         // unique: true
     }
-}, { collection: 'user-roles' });
+}, { collection: 'user-roles', timestamps: true });

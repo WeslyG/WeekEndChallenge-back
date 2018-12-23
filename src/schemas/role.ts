@@ -7,4 +7,4 @@ export const RoleSchema = new Schema({
         required: true,
         unique: true
     }
-}, { collection: 'roles' });
+}, { collection: 'roles', timestamps: true });

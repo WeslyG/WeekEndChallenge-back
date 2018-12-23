@@ -12,4 +12,4 @@ export const UserQuestSchema = new Schema({
         required: true,
         // unique: true
     }
-}, { collection: 'user-quest' });
+}, { collection: 'user-quest', timestamps: true });

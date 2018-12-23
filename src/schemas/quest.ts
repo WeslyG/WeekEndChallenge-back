@@ -28,4 +28,4 @@ export const QuestSchema = new Schema({
         required: true
     }
     // links/files
-}, { collection: 'quest' });
+}, { collection: 'quest', timestamps: true });
