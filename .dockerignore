@@ -1,0 +1,11 @@
+./etc
+./node_modules
+./src
+Dockerfile
+README.md
+tslint.json
+tsconfig.json
+nodemon.json
+.gitignore
+.vscode
+
