@@ -1,6 +1,6 @@
 export const configuration = {
     dataBase: {
-        host: 'mongodb://localhost/',
+        host: 'mongodb://mongo/',
         name: 'ts_server_db'
     },
     secret: 'i love my job',
