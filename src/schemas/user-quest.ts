@@ -13,3 +13,4 @@ export const UserQuestSchema = new Schema({
         // unique: true
     }
 }, { collection: 'user-quest', timestamps: true });
+

@@ -1,15 +1,16 @@
 export const configuration = {
+    port: process.env.DB_PORT || 3000,
     dataBase: {
-        host: 'mongodb://mongo/',
-        name: 'ts_server_db'
+        host: process.env.DB_HOST || 'mongodb://localhost/',
+        name: process.env.DB_NAME || 'ts_server_db'
     },
-    secret: 'i love my job',
-    saltRounds: 10,
+    secret: process.env.SECRET || 'i love my job',
+    saltRounds: process.env.SALT_ROUND || 10,
     baseUsers: {
         admin: {
-            name: 'adminName',
-            login: 'admin',
-            defaultPassword: 'pass4admin'
+            name: process.env.ADMIN_NAME || 'adminName',
+            login: process.env.ADMIN_LOGIN || 'admin',
+            defaultPassword: process.env.ADMIN_PASSWORD || 'pass4admin'
         }
     },
     baseRoles: {

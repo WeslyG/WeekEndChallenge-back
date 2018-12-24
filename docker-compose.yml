@@ -14,5 +14,12 @@ services:
       - mongo
     links:
       - mongo
-    # environment:
-    #   - DB_URL=mongodb://mongo
+    environment:
+      - PORT=3000
+      - DB_HOST=mongodb://mongo/
+      - DB_NAME=prod_db
+      # - ADMIN_NAME=adminName
+      # - ADMIN_LOGIN=admin
+      # - ADMIN_PASSWORD=password
+      # - SECRET=secrets
+      # - SALT_ROUND=10

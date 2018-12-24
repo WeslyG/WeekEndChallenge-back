@@ -10,8 +10,11 @@ import { configuration } from '../configuration/configuration';
 import { IQuest } from '../interfaces/quest';
 import { userQuestController } from './user-quest-controller';
 import { IScoreBoard } from '../interfaces/scoreBoard';
+import { IUserQuest } from '../interfaces/user-quest';
+import { UserQuestSchema } from '../schemas/user-quest';
 
 const User = mongoose.model<IUser>('User', UserSchema);
+const UserQuest = mongoose.model<IUserQuest>('UserQuest', UserQuestSchema);
 
 export class UserController {
 
@@ -168,6 +171,31 @@ export class UserController {
 
     public async getUserList() {
         try {
+
+            const t = await UserQuest.aggregate(
+                [{
+                    $lookup: {
+                        from: 'User',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'userRole'
+                    }
+                }]
+            );
+
+            console.log(t);
+            const userWithTimestemp = await UserQuest.aggregate(
+                [
+                    {
+                        $group:
+                        {
+                            _id: '$userId',
+                            lastSalesDate: { $last: '$createdAt' }
+                        }
+                    },
+                ]
+            );
+
             const userList = await User.find(
                 { enabled: true },
                 ['name', 'score', 'questCount'],
@@ -177,9 +205,10 @@ export class UserController {
                         // TODO: кто последний
                     }
                 }
-                );
-            const returnList: IScoreBoard[] = [];
+            );
 
+
+            const returnList: IScoreBoard[] = [];
             let i = 1;
             _(userList).forEach(value => {
                 returnList.push({

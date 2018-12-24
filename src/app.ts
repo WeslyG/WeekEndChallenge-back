@@ -32,10 +32,8 @@ class App {
   private async setDatabase() {
     try {
       mongoose.set('useCreateIndex', true);
-
       await mongoose.connect(configuration.dataBase.host + configuration.dataBase.name, { useNewUrlParser: true });
       console.log('MongoDB has started...');
-
       this.dbSeed();
     } catch (err) {
       console.log(err);
