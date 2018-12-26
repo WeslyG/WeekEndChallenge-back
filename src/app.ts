@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import mongoose = require('mongoose');
 import cors = require('cors');
+
 import { configuration } from './configuration/configuration';
 import { userController } from './controllers/user-controller';
 import { roleController } from './controllers/role-controller';
@@ -12,7 +13,6 @@ import { questPublicRoutes } from './routes/public/quest-routes';
 import { userProtectedRoutes } from './routes/protected/user-routes';
 import { questProtectRoutes } from './routes/protected/quest-routes';
 import { roleProtectedRoutes } from './routes/protected/role-routes';
-
 
 class App {
   public app: express.Application;
