@@ -1,6 +1,12 @@
 version: '2'
 
 services:
+  front:
+    image: weslyg/wc-front:latest
+    ports:
+      - 80:80
+    depends_on:
+      - backend
   mongo:
     image: mongo
     ports:
