@@ -29,4 +29,4 @@ script:
   - docker push $DOCKER_USERNAME/$app_name:$app_version-$version_prefix
   - docker push $DOCKER_USERNAME/$app_name:latest
   # I am finished!
-  - curl -XPOST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&parse_mode=MARKDOWN&text=Успешно собрал \`${app_name}\` версии \`${app_version}-${version_prefix}\`%0A\[Контейнеры тут\](https://hub.docker.com/r/${DOCKER_USERNAME}/${app_name})%0A\[Commit\](https://github.com/Wes`
+  - curl -XPOST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&parse_mode=MARKDOWN&text=Успешно собрал \`${app_name}\` версии \`${app_version}-${version_prefix}\`%0A\[Контейнеры тут\](https://hub.docker.com/r/${DOCKER_USERNAME}/${app_name})%0A\[Commit\](https://github.com/WeslyG/WeekEndChallenge-front/commit/${commit})%0A\[Build\](${TRAVIS_BUILD_WEB_URL})%0A\[SonarQube\](https://sonarcloud.io/dashboard?id=wc-back)"
