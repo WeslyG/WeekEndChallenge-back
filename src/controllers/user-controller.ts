@@ -54,7 +54,8 @@ export class UserController {
                     passwordHash: hash,
                     enabled: true,
                     score: 0,
-                    questCount: 0
+                    questCount: 0,
+                    lastUpdate: new Date()
                 });
                 const result = await newUser.save();
                 await userRoleController.addRoleToUser(result.id, configuration.baseRoles.user);
@@ -104,7 +105,8 @@ export class UserController {
                 gender: user.gender,
                 score: user.score,
                 questCount: user.questCount,
-                enabled: user.enabled
+                enabled: user.enabled,
+                lastUpdate: user.lastUpdate
             };
             const newUser = await User.findOneAndUpdate(query, update, { new: true });
 
@@ -115,7 +117,8 @@ export class UserController {
                 gender: newUser.gender,
                 score: newUser.score,
                 questCount: newUser.questCount,
-                enabled: newUser.enabled
+                enabled: newUser.enabled,
+                lastUpdate: newUser.lastUpdate
             });
         } catch (err) {
             return new Result(500, err);
@@ -131,7 +134,8 @@ export class UserController {
                 gender: user.gender,
                 score: user.score + quest.price,
                 enabled: user.enabled,
-                questCount: user.questCount + 1
+                questCount: user.questCount + 1,
+                lastUpdate: new Date()
             };
 
             const result = await this.updateUser(newUser);
@@ -171,42 +175,16 @@ export class UserController {
 
     public async getUserList() {
         try {
-
-            const t = await UserQuest.aggregate(
-                [{
-                    $lookup: {
-                        from: 'User',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userRole'
-                    }
-                }]
-            );
-
-            // console.log(t);
-            const userWithTimestemp = await UserQuest.aggregate(
-                [
-                    {
-                        $group:
-                        {
-                            _id: '$userId',
-                            lastSalesDate: { $last: '$createdAt' }
-                        }
-                    },
-                ]
-            );
-
             const userList = await User.find(
                 { enabled: true },
-                ['name', 'score', 'questCount'],
+                ['name', 'score', 'questCount', 'lastUpdate'],
                 {
                     sort: {
-                        score: -1
-                        // TODO: кто последний
+                        score: -1,
+                        lastUpdate: 1
                     }
                 }
             );
-
 
             const returnList: IScoreBoard[] = [];
             let i = 1;
@@ -216,7 +194,8 @@ export class UserController {
                     position: i++,
                     name: value.name,
                     score: value.score,
-                    questCount: value.questCount
+                    questCount: value.questCount,
+                    lastUpdate: value.lastUpdate
                 });
             });
 

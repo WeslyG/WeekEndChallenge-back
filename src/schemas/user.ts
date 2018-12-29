@@ -30,6 +30,10 @@ export const UserSchema = new Schema({
     enabled: {
         type: Boolean,
         required: false
+    },
+    lastUpdate: {
+        type: Date,
+        required: false
     }
 },
 {

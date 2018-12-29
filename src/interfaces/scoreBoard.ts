@@ -4,4 +4,5 @@ export interface IScoreBoard {
     name?: string;
     score?: number;
     questCount?: number;
+    lastUpdate?: Date;
 }

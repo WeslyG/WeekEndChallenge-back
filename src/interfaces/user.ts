@@ -10,4 +10,5 @@ export interface IUser extends Document {
     questCount?: number;
     enabled?: boolean;
     passwordHash?: string;
+    lastUpdate?: Date;
 }
