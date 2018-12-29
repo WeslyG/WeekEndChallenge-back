@@ -18,7 +18,7 @@ addons:
 install:
   # I am started!
   - curl -XPOST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&parse_mode=MARKDOWN&text=Начинаю сборку \`${app_name}\` версии \`${app_version}-${version_prefix}\`%0A*${author_name}* завез нам - \`${TRAVIS_COMMIT_MESSAGE}\`"
-  - npm install
+  - yarn
   - npm run build
 script:
   - sonar-scanner -Dsonar.projectVersion=${app_version}-${version_prefix}
