@@ -10,18 +10,18 @@ before_install:
   - version_prefix=$(echo $commit | head -c 6)
   - app_name=$(node -e "console.log(require('./package.json').name);")
   - author_name="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
-# addons:
-#   sonarcloud:
-#     organization: "weslyg-github"
-#     token:
-#       secure: ${SONAR_TOKEN}
+addons:
+  sonarcloud:
+    organization: "weslyg-github"
+    token:
+      secure: ${SONAR_TOKEN}
 install:
   # I am started!
   - curl -XPOST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&parse_mode=MARKDOWN&text=Начинаю сборку \`${app_name}\` версии \`${app_version}-${version_prefix}\`%0A*${author_name}* завез нам - \`${TRAVIS_COMMIT_MESSAGE}\`"
   - npm install
   - npm run build
 script:
-  # - sonar-scanner -Dsonar.projectVersion=${app_version}-${version_prefix}
+  - sonar-scanner -Dsonar.projectVersion=${app_version}-${version_prefix}
   - docker build -t $DOCKER_USERNAME/$app_name:$app_version-$version_prefix .
   - docker tag $DOCKER_USERNAME/$app_name:$app_version-$version_prefix weslyg/$app_name:latest
   - docker images
