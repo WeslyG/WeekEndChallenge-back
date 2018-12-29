@@ -6,8 +6,8 @@ services:
     ports:
     - 27017:27017
   backend:
-    build: .
-    # image: weslyg/weekendchallenge:latest
+    # build: .
+    image: weslyg/wc-back:latest
     ports:
       - 3000:3000
     depends_on:
